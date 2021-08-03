@@ -2,6 +2,7 @@ use crate::run;
 use orbtk::prelude::*;
 static STACK_ID: &str = "STACK";
 static ARGS: [&str; 4] = ["x","lo","SOE","Tk"];
+static FIL: &str = "file";
 use std::fs;
 #[derive(Copy, Clone)]
 enum PopUpAction {
@@ -169,6 +170,7 @@ impl Template for MainView {
                     ctx,
                     Button::new()
                         .text("Select file")
+                        .id(FIL)
                         .on_click(move |states, _| -> bool {
                             states.get_mut::<MainViewState>(id).show_popup();
                             states.get_mut::<MainViewState>(id).ent = id;
