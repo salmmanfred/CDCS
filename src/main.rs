@@ -56,7 +56,6 @@ impl stateColl {
             }
         }
         openfile::write_file(&self.save, &files).expect("save error");
-
     }
     pub fn register_args(&mut self, args: Vec<String>) {
         let args = args.clone();
@@ -64,7 +63,6 @@ impl stateColl {
         self.population = args[2].clone();
         self.religion = args[3].clone();
         self.save = args[4].clone();
-
     }
 }
 use std::env;
