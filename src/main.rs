@@ -82,6 +82,49 @@ fn main() {
     }
     ui::run_ui();
 }
+
+// TODO: There should be a better way to do this
+fn name_to_ref_name(name: String) -> String {
+    let mut st = name;
+    st.make_ascii_lowercase();
+    let st = st.replace("-", "_");
+    let st = st.replace(" ", "_");
+    let st = st.replace("à", "a");
+    let st = st.replace("è", "e");
+    let st = st.replace("ì", "i");
+    let st = st.replace("ò", "o");
+    let st = st.replace("ù", "u");
+    
+    let st = st.replace("á", "a");
+    let st = st.replace("é", "e");
+    let st = st.replace("í", "i");
+    let st = st.replace("ó", "o");
+    let st = st.replace("ú", "u");
+    let st = st.replace("ý", "y");
+    
+    let st = st.replace("â", "a");
+    let st = st.replace("ê", "e");
+    let st = st.replace("î", "i");
+    let st = st.replace("ô", "o");
+    let st = st.replace("û", "u");
+    
+    let st = st.replace("ã", "a");
+    //let st = st.replace("e", "e");
+    //let st = st.replace("i", "i");
+    let st = st.replace("õ", "o");
+    //let st = st.replace("u", "u");
+    let st = st.replace("ñ", "n");
+    
+    let st = st.replace("ä", "a");
+    let st = st.replace("ë", "e");
+    let st = st.replace("ï", "i");
+    let st = st.replace("ö", "o");
+    let st = st.replace("ü", "u");
+    let st = st.replace("ÿ", "y");
+    
+    st
+}
+
 fn run(args: Vec<String>, data: String) {
     //(\((.* ?),( ?\w*)\)|(.*)\((.*\)))
 
@@ -92,20 +135,13 @@ fn run(args: Vec<String>, data: String) {
 
     for state in re.captures_iter(&x) {
         println!("{:#?}", state);
-        let st = state[1].to_string();
-        let st = st.replace("-", "_");
-        let st = st.replace(" ", "_");
+        let st = name_to_ref_name(state[1].to_string());
 
         col.register_states(st);
     }
     for state in re.captures_iter(&x) {
-        let st = state[1].to_string();
-        let st = st.replace("-", "_");
-        let st = st.replace(" ", "_");
-
-        let st2 = state[2].to_string();
-        let st2 = st2.replace("-", "_");
-        let st2 = st2.replace(" ", "_");
+        let st = name_to_ref_name(state[1].to_string());
+        let st2 = name_to_ref_name(state[2].to_string());
         col.register_prov([st, st2]);
     }
     println!("{:#?}", col);
