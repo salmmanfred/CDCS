@@ -23,6 +23,7 @@ struct MainViewState {
     show_popup: bool,
     popup: Option<Entity>,
     file: String,
+    ent_fil: usize,
     ent: Entity,
     num: [Entity; 4]
 }
@@ -59,13 +60,20 @@ impl State for MainViewState {
                     let popup = create_popup(self.ent, current_entity, "Popup text", build_context);
                     build_context.append_child(stack, popup);
                     self.popup = Some(popup);
-                    println!("Popup created: {:?}", self.popup);
+                    //println!("Popup created: {:?}", self.popup);
                 }
                 PopUpAction::Hide => {
                     if let Some(popup) = self.popup {
+                        let lv = ctx.entity_of_child(ARGS[3]).unwrap();
+                        //println!("{}",self.ent_fil);
+
+                        let entit = ctx.entity_of_child(self.ent_fil.to_string().as_str()).unwrap();
+                        let entfor = ctx.get_widget(entit).clone_or_default::<String16>("text");
+                        let button = ctx.entity_of_child(FIL).unwrap();
+                        ctx.get_widget(button).set("text", entfor);
                         ctx.remove_child(popup);
 
-                        println!("Popup removed !");
+                        //println!("Popup removed !");
                     }
                 }
             }
@@ -84,7 +92,7 @@ impl State for MainViewState {
                    
 
                     let arg1 = ctx.get_widget(self.num[0]).clone_or_default::<String16>("text").as_string();
-                    println!("{}",self.file);
+                    //println!("{}",self.file);
 
                     let arg2 = ctx.get_widget(self.num[1]).clone_or_default::<String16>("text").as_string();
                     let arg3 = ctx.get_widget(self.num[2]).clone_or_default::<String16>("text").as_string();
@@ -116,8 +124,9 @@ impl MainViewState {
         }
         self.show_popup = !self.show_popup;
     }
-    fn file(&mut self, file: String) {
+    fn file(&mut self, file: String,ent: usize) {
         self.file = file;
+        self.ent_fil = ent;
     }
     fn build(&mut self){
      
@@ -137,6 +146,7 @@ impl Template for MainView {
         self.name("MainView").margin(16.0).child(
             Grid::new()
                 .id(STACK_ID)
+                
                 .columns(Columns::create().columns(&["auto", "auto", "auto", "auto"]).build())
                 .background("#FFFFFF")
                 .rows(
@@ -156,16 +166,16 @@ impl Template for MainView {
 
                 .place(ctx, TextBlock::new().text("Nation:").font_size(20), 1, 1)
 
-                .place(ctx, TextBox::new().text("Nation name").id(ARGS[0]).water_mark("Username"), 1, 3)
+                .place(ctx, TextBox::new().water_mark("Nation name").id(ARGS[0]).water_mark("Username"), 1, 3)
                 .place(
                     ctx,
                     TextBlock::new().text("Population name:").font_size(20),
                     1,
                     5,
                 )
-                .place(ctx, TextBox::new().text("pop name").id(ARGS[1]), 1, 7)
+                .place(ctx, TextBox::new().water_mark("pop name").id(ARGS[1]), 1, 7)
                 .place(ctx, TextBlock::new().text("Religion:").font_size(20), 1, 8)
-                .place(ctx, TextBox::new().text("Religion name").id(ARGS[2]), 1, 10)
+                .place(ctx, TextBox::new().water_mark("Religion name").id(ARGS[2]), 1, 10)
                 .place(
                     ctx,
                     Button::new()
@@ -180,7 +190,7 @@ impl Template for MainView {
                     1,
                     14,
                 )
-                .place(ctx, TextBox::new().text("Build file").id(ARGS[3]), 1, 18)
+                .place(ctx, TextBox::new().text("./Build File").water_mark("Build file").id(ARGS[3]), 1, 18)
 
                 .place(
                     ctx,
@@ -276,16 +286,20 @@ fn get_files(target: Entity, _: Entity, ctx: &mut BuildContext) -> Entity {
         */
         let pos = x + 1;
         let xx = list2[x].clone();
+        let xxx = x;
         let x = list[x].clone();
         st = st.child(
             Button::new()
                 .text(format!("{}", x))
+                .id(xxx.to_string().as_str())
                 .on_click(move |states, _| -> bool {
                   //  println!("xid {:#?}", target);
                     /*
                     if pressed it sends the mainviewstate the file that it wants to use and closes the popup
                     */
-                    states.get_mut::<MainViewState>(target).file(xx.clone());
+                    states.get_mut::<MainViewState>(target).file(xx.clone(),xxx);
+                    //println!("{}",xxx);
+
                     states.get_mut::<MainViewState>(target).show_popup();
 
                     true
@@ -319,9 +333,9 @@ fn create_popup(target: Entity, hd: Entity, _: &str, ctx: &mut BuildContext) -> 
     Popup::new()
         .target(target)
         .open(true)
-        .width(250.0)
+        .width(300)
      
-        .height(250.0)
+        .height(300.0)
         .child(get_files(target, hd, ctx))
         .build(ctx)
 }
