@@ -1,7 +1,7 @@
 use crate::run;
 use orbtk::prelude::*;
 static STACK_ID: &str = "STACK";
-static ARGS: [&str; 4] = ["x","lo","SOE","Tk"];
+static ARGS: [&str; 4] = ["x", "lo", "SOE", "Tk"];
 static FIL: &str = "file";
 use std::fs;
 #[derive(Copy, Clone)]
@@ -25,29 +25,27 @@ struct MainViewState {
     file: String,
     ent_fil: usize,
     ent: Entity,
-    num: [Entity; 4]
+    num: [Entity; 4],
 }
 impl State for MainViewState {
-
-    
     fn init(&mut self, _: &mut Registry, ctx: &mut Context) {
         let l = ctx.entity_of_child(ARGS[0]).expect("err");
         let ll = ctx.entity_of_child(ARGS[1]).unwrap();
         let lll = ctx.entity_of_child(ARGS[2]).unwrap();
         let lv = ctx.entity_of_child(ARGS[3]).unwrap();
 
-        self.num = [l,ll,lll,lv]
+        self.num = [l, ll, lll, lv]
     }
 
     /*
-        
-        
-    
+
+
+
     */
     /*
-    Main loop 
+    Main loop
     if the action is pop up action it makes the pop up where you can select the correct file
-    
+
     */
     fn update(&mut self, _: &mut Registry, ctx: &mut Context) {
         if let Some(action) = self.action {
@@ -67,7 +65,9 @@ impl State for MainViewState {
                         let lv = ctx.entity_of_child(ARGS[3]).unwrap();
                         //println!("{}",self.ent_fil);
 
-                        let entit = ctx.entity_of_child(self.ent_fil.to_string().as_str()).unwrap();
+                        let entit = ctx
+                            .entity_of_child(self.ent_fil.to_string().as_str())
+                            .unwrap();
                         let entfor = ctx.get_widget(entit).clone_or_default::<String16>("text");
                         let button = ctx.entity_of_child(FIL).unwrap();
                         ctx.get_widget(button).set("text", entfor);
@@ -80,41 +80,47 @@ impl State for MainViewState {
             self.action = None;
         }
         /*
-       
+
         */
         if let Some(action) = self.action2 {
-
-            match action{
-                BuildAction::Build =>{
+            match action {
+                BuildAction::Build => {
                     //let x = ctx.get_widget(self.num[0]).has::<String>("input");
-                //println!("x{}",x);
+                    //println!("x{}",x);
                     let x = openfile::read_file(self.file.as_str());
-                   
 
-                    let arg1 = ctx.get_widget(self.num[0]).clone_or_default::<String16>("text").as_string();
+                    let arg1 = ctx
+                        .get_widget(self.num[0])
+                        .clone_or_default::<String16>("text")
+                        .as_string();
                     //println!("{}",self.file);
 
-                    let arg2 = ctx.get_widget(self.num[1]).clone_or_default::<String16>("text").as_string();
-                    let arg3 = ctx.get_widget(self.num[2]).clone_or_default::<String16>("text").as_string();
-                    let arg4 = ctx.get_widget(self.num[3]).clone_or_default::<String16>("text").as_string();
+                    let arg2 = ctx
+                        .get_widget(self.num[1])
+                        .clone_or_default::<String16>("text")
+                        .as_string();
+                    let arg3 = ctx
+                        .get_widget(self.num[2])
+                        .clone_or_default::<String16>("text")
+                        .as_string();
+                    let arg4 = ctx
+                        .get_widget(self.num[3])
+                        .clone_or_default::<String16>("text")
+                        .as_string();
 
-
-
-                    run(vec!("ax".to_string(),arg1,arg2,arg3,arg4), x);
+                    run(vec!["ax".to_string(), arg1, arg2, arg3, arg4], x);
 
                     self.action2 = Some(BuildAction::Hide);
                 }
 
-                _=>{}
+                _ => {}
             }
         }
-
-
     }
 }
 impl MainViewState {
     /*
-    shows and hides the pop up 
+    shows and hides the pop up
     */
     fn show_popup(&mut self) {
         if self.show_popup {
@@ -124,14 +130,12 @@ impl MainViewState {
         }
         self.show_popup = !self.show_popup;
     }
-    fn file(&mut self, file: String,ent: usize) {
+    fn file(&mut self, file: String, ent: usize) {
         self.file = file;
         self.ent_fil = ent;
     }
-    fn build(&mut self){
-     
+    fn build(&mut self) {
         self.action2 = Some(BuildAction::Build);
-        
     }
 }
 
@@ -140,33 +144,48 @@ widget!(MainView<MainViewState>);
 impl Template for MainView {
     fn template(self, id: Entity, ctx: &mut BuildContext) -> Self {
         /*
-        creates the main interface 
-        first it creates a gid and then puts it around the grid 
+        creates the main interface
+        first it creates a gid and then puts it around the grid
         */
         self.name("MainView").margin(16.0).child(
             Grid::new()
                 .id(STACK_ID)
-                
-                .columns(Columns::create().columns(&["auto", "auto", "auto", "auto"]).build())
+                .columns(
+                    Columns::create()
+                        .columns(&["auto", "auto", "auto", "auto"])
+                        .build(),
+                )
                 .background("#FFFFFF")
                 .rows(
                     Rows::create()
                         .rows(&[
                             "auto", "auto", "auto", "auto", "auto", "auto", "auto", "auto", "auto",
-                            "auto", "auto", "auto", "auto", "auto", "auto", "auto", "auto", "auto", "auto","auto", "auto", "auto","auto", "auto", "auto",
+                            "auto", "auto", "auto", "auto", "auto", "auto", "auto", "auto", "auto",
+                            "auto", "auto", "auto", "auto", "auto", "auto", "auto",
                         ])
                         .build(),
                 )
                 /*
-                
-                these are the input fields 
-
+                these are the input fields
                 */
-                .place(ctx, TextBlock::new().text("Dont forget ./ on \n the save file name").font_size(10), 3, 1)
-
+                .place(
+                    ctx,
+                    TextBlock::new()
+                        .text("Dont forget ./ on \n the save file name")
+                        .font_size(10),
+                    3,
+                    1,
+                )
                 .place(ctx, TextBlock::new().text("Nation:").font_size(20), 1, 1)
-
-                .place(ctx, TextBox::new().water_mark("Nation name").id(ARGS[0]).water_mark("Username"), 1, 3)
+                .place(
+                    ctx,
+                    TextBox::new()
+                        .water_mark("Nation name")
+                        .id(ARGS[0])
+                        .water_mark("Username"),
+                    1,
+                    3,
+                )
                 .place(
                     ctx,
                     TextBlock::new().text("Population name:").font_size(20),
@@ -175,7 +194,12 @@ impl Template for MainView {
                 )
                 .place(ctx, TextBox::new().water_mark("pop name").id(ARGS[1]), 1, 7)
                 .place(ctx, TextBlock::new().text("Religion:").font_size(20), 1, 8)
-                .place(ctx, TextBox::new().water_mark("Religion name").id(ARGS[2]), 1, 10)
+                .place(
+                    ctx,
+                    TextBox::new().water_mark("Religion name").id(ARGS[2]),
+                    1,
+                    10,
+                )
                 .place(
                     ctx,
                     Button::new()
@@ -190,23 +214,27 @@ impl Template for MainView {
                     1,
                     14,
                 )
-                .place(ctx, TextBox::new().text("./Build File").water_mark("Build file").id(ARGS[3]), 1, 18)
-
+                .place(
+                    ctx,
+                    TextBox::new()
+                        .text("./Build File")
+                        .water_mark("Build file")
+                        .id(ARGS[3]),
+                    1,
+                    18,
+                )
                 .place(
                     ctx,
                     Button::new()
                         .text("Build")
                         .on_click(move |states, _| -> bool {
                             states.get_mut::<MainViewState>(id).build();
-                           
 
-                        
                             true
                         }),
                     1,
                     24,
                 )
-
                 .build(ctx),
         )
     }
@@ -232,11 +260,11 @@ pub fn run_ui() {
 
 fn get_files(target: Entity, _: Entity, ctx: &mut BuildContext) -> Entity {
     /*
-    probably the coolest function 
+    probably the coolest function
 
-    it creates a stack and put some spacers on that 
+    it creates a stack and put some spacers on that
 
-    then it looks into the current folder and gets each file name and after that 
+    then it looks into the current folder and gets each file name and after that
     */
     let mut st = Stack::new().spacing(0.1).child(
         TextBlock::new()
@@ -275,14 +303,14 @@ fn get_files(target: Entity, _: Entity, ctx: &mut BuildContext) -> Entity {
             list2.push(entry.clone());
             // con = con
             list.push(ent);
-           // println!("x");
+            // println!("x");
         }
         //println!("{:#?}, {}", entry_name2, entry_name);
     }
 
     for x in 0..list.len() {
         /*
-        iterates through the loop and looks at each name and makes a button out of it 
+        iterates through the loop and looks at each name and makes a button out of it
         */
         let pos = x + 1;
         let xx = list2[x].clone();
@@ -293,11 +321,13 @@ fn get_files(target: Entity, _: Entity, ctx: &mut BuildContext) -> Entity {
                 .text(format!("{}", x))
                 .id(xxx.to_string().as_str())
                 .on_click(move |states, _| -> bool {
-                  //  println!("xid {:#?}", target);
+                    //  println!("xid {:#?}", target);
                     /*
                     if pressed it sends the mainviewstate the file that it wants to use and closes the popup
                     */
-                    states.get_mut::<MainViewState>(target).file(xx.clone(),xxx);
+                    states
+                        .get_mut::<MainViewState>(target)
+                        .file(xx.clone(), xxx);
                     //println!("{}",xxx);
 
                     states.get_mut::<MainViewState>(target).show_popup();
@@ -317,7 +347,6 @@ fn get_files(target: Entity, _: Entity, ctx: &mut BuildContext) -> Entity {
     let con = ScrollViewer::new()
         .padding(8.0)
         .speed(2.0)
-    
         .clip(false)
         .child(st.build(ctx));
     con.build(ctx)
@@ -327,14 +356,13 @@ fn get_files(target: Entity, _: Entity, ctx: &mut BuildContext) -> Entity {
 }
 
 fn create_popup(target: Entity, hd: Entity, _: &str, ctx: &mut BuildContext) -> Entity {
-    /* 
+    /*
     makes the popup
     */
     Popup::new()
         .target(target)
         .open(true)
         .width(300)
-     
         .height(300.0)
         .child(get_files(target, hd, ctx))
         .build(ctx)
