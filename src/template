@@ -1,4 +1,4 @@
-province = Province:create{ ref_name = "n2", color = 0x469360 }
+province = Province:create{ ref_name = "n2", color = colour }
 province.name = _("n2")
 Province:register(province)
 Province:add_pop(province, artisan, pop_name, relg, 5000, 0.9)

@@ -1,5 +1,6 @@
 use openfile;
 use regex::Regex;
+use random_color::{Color, Luminosity, RandomColor};
 
 #[derive(Debug)]
 struct stateColl {
@@ -51,6 +52,13 @@ impl stateColl {
                 let newfile = str::replace(newfile.as_str(), "relg", self.religion.as_str());
                 let newfile = str::replace(newfile.as_str(), "pop_name", self.population.as_str());
                 let newfile = str::replace(newfile.as_str(), "pop_nation", self.nation.as_str());
+
+                let color = RandomColor::new()
+               
+                .luminosity(Luminosity::Light).to_hex();
+                let newfile = str::replace(newfile.as_str(), "colour", color.as_str());
+
+
                 println!("{}", newfile);
                 files.push_str(&newfile.as_str());
             }
@@ -82,6 +90,7 @@ fn main() {
 }
 
 // TODO: There should be a better way to do this
+// not really sadly 
 fn name_to_ref_name(name: String) -> String {
     let mut st = name;
     st.make_ascii_lowercase();
@@ -133,13 +142,13 @@ fn run(args: Vec<String>, data: String) {
 
     for state in re.captures_iter(&x) {
         println!("{:#?}", state);
-        let st = name_to_ref_name(state[1].to_string());
+        let st = name_to_ref_name(state[2].to_string());
 
         col.register_states(st);
     }
     for state in re.captures_iter(&x) {
-        let st = name_to_ref_name(state[1].to_string());
-        let st2 = name_to_ref_name(state[2].to_string());
+        let st = name_to_ref_name(state[2].to_string());
+        let st2 = state[1].to_string();
         col.register_prov([st, st2]);
     }
     println!("{:#?}", col);

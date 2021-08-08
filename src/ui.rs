@@ -188,11 +188,11 @@ impl Template for MainView {
                 )
                 .place(
                     ctx,
-                    TextBlock::new().text("Population name:").font_size(20),
+                    TextBlock::new().text("Culture name:").font_size(20),
                     1,
                     5,
                 )
-                .place(ctx, TextBox::new().water_mark("pop name").id(ARGS[1]), 1, 7)
+                .place(ctx, TextBox::new().water_mark("Culture").id(ARGS[1]), 1, 7)
                 .place(ctx, TextBlock::new().text("Religion:").font_size(20), 1, 8)
                 .place(
                     ctx,
