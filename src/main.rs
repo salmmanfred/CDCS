@@ -1,7 +1,8 @@
 use openfile;
-use regex::Regex;
 use random_color::{Color, Luminosity, RandomColor};
-
+use regex::Regex;
+mod pop;
+use crate::pop::pop_creator;
 #[derive(Debug)]
 struct stateColl {
     states: Vec<Vec<String>>,
@@ -10,6 +11,7 @@ struct stateColl {
     population: String,
     religion: String,
     save: String,
+    pub pop: pop_creator,
 }
 impl stateColl {
     pub fn new() -> stateColl {
@@ -21,6 +23,7 @@ impl stateColl {
             population: "the user forgot to enter a valid population name".to_string(),
             religion: "the user forgot to enter a valid religion".to_string(),
             save: "CDCSDEFAULT.CDCS".to_string(),
+            pop: pop_creator::new(),
         }
     }
     pub fn register_states(&mut self, name: String) {
@@ -41,6 +44,7 @@ impl stateColl {
     }
     pub fn compile(&mut self) {
         let mut files: String = "".to_string();
+        let pop = self.pop.compile();
         for x in 0..self.name.len() {
             for st in 0..self.states[x].len() {
                 let newfile = str::replace(
@@ -48,16 +52,19 @@ impl stateColl {
                     "province_name",
                     self.name[x].as_str(),
                 );
+
                 let newfile = str::replace(newfile.as_str(), "n2", self.states[x][st].as_str());
                 let newfile = str::replace(newfile.as_str(), "relg", self.religion.as_str());
                 let newfile = str::replace(newfile.as_str(), "pop_name", self.population.as_str());
-                let newfile = str::replace(newfile.as_str(), "pop_nation", self.nation.as_str());
-
-                let color = RandomColor::new()
-               
-                .luminosity(Luminosity::Light).to_hex();
+                let mut newfile = str::replace(newfile.as_str(), "pop_nation", self.nation.as_str());
+                let table = ["L1","L2","L3","L4","L5","L6","L7","L8","L9"];
+                let pop = pop.find(self.states[x][st].clone());
+                for x in 0..8{
+                    let ar = table[x];
+                    newfile = str::replace(newfile.as_str(), table[x], pop[x].to_string().as_str())
+                }
+                let color = RandomColor::new().luminosity(Luminosity::Light).to_hex();
                 let newfile = str::replace(newfile.as_str(), "colour", color.as_str());
-
 
                 println!("{}", newfile);
                 files.push_str(&newfile.as_str());
@@ -71,6 +78,7 @@ impl stateColl {
         self.population = args[2].clone();
         self.religion = args[3].clone();
         self.save = args[4].clone();
+        self.pop.population = args[5].clone().parse().unwrap();
     }
 }
 use std::env;
@@ -90,7 +98,7 @@ fn main() {
 }
 
 // TODO: There should be a better way to do this
-// not really sadly 
+// not really sadly
 fn name_to_ref_name(name: String) -> String {
     let mut st = name;
     st.make_ascii_lowercase();
@@ -101,34 +109,34 @@ fn name_to_ref_name(name: String) -> String {
     let st = st.replace("ì", "i");
     let st = st.replace("ò", "o");
     let st = st.replace("ù", "u");
-    
+
     let st = st.replace("á", "a");
     let st = st.replace("é", "e");
     let st = st.replace("í", "i");
     let st = st.replace("ó", "o");
     let st = st.replace("ú", "u");
     let st = st.replace("ý", "y");
-    
+
     let st = st.replace("â", "a");
     let st = st.replace("ê", "e");
     let st = st.replace("î", "i");
     let st = st.replace("ô", "o");
     let st = st.replace("û", "u");
-    
+
     let st = st.replace("ã", "a");
     //let st = st.replace("e", "e");
     //let st = st.replace("i", "i");
     let st = st.replace("õ", "o");
     //let st = st.replace("u", "u");
     let st = st.replace("ñ", "n");
-    
+
     let st = st.replace("ä", "a");
     let st = st.replace("ë", "e");
     let st = st.replace("ï", "i");
     let st = st.replace("ö", "o");
     let st = st.replace("ü", "u");
     let st = st.replace("ÿ", "y");
-    
+
     st
 }
 
@@ -136,20 +144,22 @@ fn run(args: Vec<String>, data: String) {
     //(\((.* ?),( ?\w*)\)|(.*)\((.*\)))
 
     let mut col = Box::new(stateColl::new());
-    col.register_args(args);
+    col.register_args(args.clone());
     let x = data;
-    let re = Regex::new(r#"\((.*),(.*)\)"#).unwrap();
+    let re = Regex::new(r#"\((.*),(.*),(\d*)\)"#).unwrap();
 
     for state in re.captures_iter(&x) {
         println!("{:#?}", state);
         let st = name_to_ref_name(state[2].to_string());
 
-        col.register_states(st);
+        col.register_states(st.clone());
+        let st2 = state[1].to_string();
+        col.register_prov([st.clone(), st2.clone()]);
+        col.pop
+            .register((st2.clone(), state[3].parse::<u8>().unwrap()))
     }
     for state in re.captures_iter(&x) {
         let st = name_to_ref_name(state[2].to_string());
-        let st2 = state[1].to_string();
-        col.register_prov([st, st2]);
     }
     println!("{:#?}", col);
     col.compile();

@@ -1,7 +1,7 @@
 use crate::run;
 use orbtk::prelude::*;
 static STACK_ID: &str = "STACK";
-static ARGS: [&str; 4] = ["x", "lo", "SOE", "Tk"];
+static ARGS: [&str; 5] = ["x", "lo", "SOE", "Tk", "CDCS"];
 static FIL: &str = "file";
 use std::fs;
 #[derive(Copy, Clone)]
@@ -25,7 +25,7 @@ struct MainViewState {
     file: String,
     ent_fil: usize,
     ent: Entity,
-    num: [Entity; 4],
+    num: [Entity; 5],
 }
 impl State for MainViewState {
     fn init(&mut self, _: &mut Registry, ctx: &mut Context) {
@@ -33,8 +33,9 @@ impl State for MainViewState {
         let ll = ctx.entity_of_child(ARGS[1]).unwrap();
         let lll = ctx.entity_of_child(ARGS[2]).unwrap();
         let lv = ctx.entity_of_child(ARGS[3]).unwrap();
+        let v = ctx.entity_of_child(ARGS[4]).unwrap();
 
-        self.num = [l, ll, lll, lv]
+        self.num = [l, ll, lll, lv, v]
     }
 
     /*
@@ -107,8 +108,11 @@ impl State for MainViewState {
                         .get_widget(self.num[3])
                         .clone_or_default::<String16>("text")
                         .as_string();
-
-                    run(vec!["ax".to_string(), arg1, arg2, arg3, arg4], x);
+                    let arg5 = ctx
+                        .get_widget(self.num[4])
+                        .clone_or_default::<String16>("text")
+                        .as_string();
+                    run(vec!["ax".to_string(), arg1, arg2, arg3, arg4, arg5], x);
 
                     self.action2 = Some(BuildAction::Hide);
                 }
@@ -161,7 +165,7 @@ impl Template for MainView {
                         .rows(&[
                             "auto", "auto", "auto", "auto", "auto", "auto", "auto", "auto", "auto",
                             "auto", "auto", "auto", "auto", "auto", "auto", "auto", "auto", "auto",
-                            "auto", "auto", "auto", "auto", "auto", "auto", "auto",
+                            "auto", "auto", "auto", "auto", "auto", "auto", "auto", "auto",
                         ])
                         .build(),
                 )
@@ -173,8 +177,20 @@ impl Template for MainView {
                     TextBlock::new()
                         .text("Dont forget ./ on \n the save file name")
                         .font_size(10),
-                    3,
-                    1,
+                    2,
+                    25,
+                )
+                .place(
+                    ctx,
+                    TextBlock::new().text("Population size:").font_size(20),
+                    2,
+                    5,
+                )
+                .place(
+                    ctx,
+                    TextBox::new().water_mark("Population size").id(ARGS[4]),
+                    2,
+                    7,
                 )
                 .place(ctx, TextBlock::new().text("Nation:").font_size(20), 1, 1)
                 .place(
@@ -217,7 +233,7 @@ impl Template for MainView {
                 .place(
                     ctx,
                     TextBox::new()
-                        .text("./Build File")
+                        .text("./Build_File")
                         .water_mark("Build file")
                         .id(ARGS[3]),
                     1,

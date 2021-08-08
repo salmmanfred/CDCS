@@ -1,0 +1,35 @@
+-- Start of Ain
+
+province = Province:create{ ref_name = "Ain", color = #b2ffbd }
+province.name = _("Ain")
+Province:register(province)
+Province:add_pop(province, artisan, 2, 3, 6666, 0.9)
+Province:add_pop(province, farmer, 2, 3, 53332, 0.8)
+Province:add_pop(province, soldier, 2, 3, 9999, 0.8)
+Province:add_pop(province, craftsmen, 2, 3, 6666, 0.9)
+Province:add_pop(province, bureaucrat, 2, 3, 6666, 0.9)
+Province:add_pop(province, aristocrat, 2, 3, 6666, 0.9)
+Province:add_pop(province, clergymen, 2, 3, 6666, 0.9)
+Province:add_pop(province, laborer, 2, 3, 66666, 0.8)
+Province:add_pop(province, entrepreneur, 2, 3, L9, 0.9)
+Province:add_nucleus(province, auvergne_rhone_alpes)
+Province:add_nucleus(province, 1)
+
+-- end of Ain-- Start of Aisne
+
+province = Province:create{ ref_name = "Aisne", color = #d7f27d }
+province.name = _("Aisne")
+Province:register(province)
+Province:add_pop(province, artisan, 2, 3, 1333, 0.9)
+Province:add_pop(province, farmer, 2, 3, 10666, 0.8)
+Province:add_pop(province, soldier, 2, 3, 1999, 0.8)
+Province:add_pop(province, craftsmen, 2, 3, 1333, 0.9)
+Province:add_pop(province, bureaucrat, 2, 3, 1333, 0.9)
+Province:add_pop(province, aristocrat, 2, 3, 1333, 0.9)
+Province:add_pop(province, clergymen, 2, 3, 1333, 0.9)
+Province:add_pop(province, laborer, 2, 3, 13333, 0.8)
+Province:add_pop(province, entrepreneur, 2, 3, L9, 0.9)
+Province:add_nucleus(province, hauts_de_france)
+Province:add_nucleus(province, 1)
+
+-- end of Aisne
