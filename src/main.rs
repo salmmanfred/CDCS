@@ -66,7 +66,7 @@ impl stateColl {
                 let color = RandomColor::new().luminosity(Luminosity::Light).to_hex();
                 let newfile = str::replace(newfile.as_str(), "colour", color.as_str());
 
-                println!("{}", newfile);
+                //println!("{}", newfile);
                 files.push_str(&newfile.as_str());
             }
         }
@@ -149,7 +149,7 @@ fn run(args: Vec<String>, data: String) {
     let re = Regex::new(r#"\((.*),(.*),(\d*)\)"#).unwrap();
 
     for state in re.captures_iter(&x) {
-        println!("{:#?}", state);
+        //println!("{:#?}", state);
         let st = name_to_ref_name(state[2].to_string());
 
         col.register_states(st.clone());
@@ -158,9 +158,7 @@ fn run(args: Vec<String>, data: String) {
         col.pop
             .register((st2.clone(), state[3].parse::<u8>().unwrap()))
     }
-    for state in re.captures_iter(&x) {
-        let st = name_to_ref_name(state[2].to_string());
-    }
-    println!("{:#?}", col);
+    
+   // println!("{:#?}", col);
     col.compile();
 }
