@@ -10,3 +10,4 @@ regex = "1.5.4"
 openfile="2.0.0"
 orbtk = {link = "https://github.com/redox-os/orbtk"}
 random_color = "0.5.1"
+fltk = "1.1.10"

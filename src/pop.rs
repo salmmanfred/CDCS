@@ -26,7 +26,7 @@ impl pop_creator {
         let enc = self.population / self.amof;
         for (name, weight) in self.map.clone() {
             let fi = (weight as u64 * enc.clone()) as f64;
-           // println!("{} , {}  , {}",fi,enc.clone(), weight.clone());
+            // println!("{} , {}  , {}",fi,enc.clone(), weight.clone());
             let spread = vec![
                 (fi * 0.04) as u64,
                 (fi * 0.32) as u64,
@@ -36,7 +36,7 @@ impl pop_creator {
                 (fi * 0.04) as u64,
                 (fi * 0.04) as u64,
                 (fi * 0.4) as u64,
-                (fi * 0.006) as u64,
+                (fi * 0.02) as u64,
             ];
             self.comp.push((name, spread));
         }

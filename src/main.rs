@@ -3,9 +3,11 @@ use random_color::{Color, Luminosity, RandomColor};
 use regex::Regex;
 mod pop;
 use crate::pop::pop_creator;
+
+mod ui_ext;
 #[derive(Debug)]
 struct stateColl {
-    states: Vec<Vec<String>>,
+    states: Vec<Vec<(String,String)>>,
     name: Vec<String>,
     nation: String,
     population: String,
@@ -35,10 +37,10 @@ impl stateColl {
         self.name.push(name);
         self.states.push(Vec::new());
     }
-    pub fn register_prov(&mut self, name: [String; 2]) {
+    pub fn register_prov(&mut self, name: [String; 3]) {
         for x in 0..self.name.len() {
             if self.name[x] == name[0] {
-                self.states[x].push(name[1].clone());
+                self.states[x].push((name[1].clone(),name[2].clone()));
             }
         }
     }
@@ -53,17 +55,32 @@ impl stateColl {
                     self.name[x].as_str(),
                 );
 
-                let newfile = str::replace(newfile.as_str(), "n2", self.states[x][st].as_str());
+                /*
+                gets the sanitized name (n3) and unsanitized name(n2)
+                it then proceeds to replace different things in template to get the correct final output .
+                when it has the final output it pushes it to file where it will later be written to the hard drive.
+
+                */
+                let (n2, n3) = self.states[x][st].clone();
+                let newfile = str::replace(newfile.as_str(), "n2", &n2);
+                let newfile = str::replace(newfile.as_str(), "n3", &n3);
+
                 let newfile = str::replace(newfile.as_str(), "relg", self.religion.as_str());
                 let newfile = str::replace(newfile.as_str(), "pop_name", self.population.as_str());
-                let mut newfile = str::replace(newfile.as_str(), "pop_nation", self.nation.as_str());
-                let table = ["L1","L2","L3","L4","L5","L6","L7","L8","L9"];
-                let pop = pop.find(self.states[x][st].clone());
-                for x in 0..8{
+                let mut newfile =
+                    str::replace(newfile.as_str(), "pop_nation", self.nation.as_str());
+
+                // gets the population from the compiled pop struct.
+                let table = ["L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8", "L9"];
+                let pop = pop.find(n2.clone());
+                // it then applies this here
+                for x in 0..9 {
                     let ar = table[x];
-                    newfile = str::replace(newfile.as_str(), table[x], pop[x].to_string().as_str())
+                    newfile = str::replace(newfile.as_str(), table[x], pop[x].to_string().as_str());
+               
                 }
-                let color = RandomColor::new().luminosity(Luminosity::Light).to_hex();
+                //adds a random colour here
+                let color = RandomColor::new().luminosity(Luminosity::Light).to_hex().replace("#", "0x");
                 let newfile = str::replace(newfile.as_str(), "colour", color.as_str());
 
                 //println!("{}", newfile);
@@ -87,14 +104,15 @@ mod ui;
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() == 0 {
-        if args[1] == "ui" {
+        if args[1] != "ui" {
             let x = openfile::read_file(args[4].as_str());
 
             run(args, x);
             return;
         }
     }
-    ui::run_ui();
+    //ui::run_ui();
+    ui_ext::ui::run();
 }
 
 // TODO: There should be a better way to do this
@@ -154,11 +172,11 @@ fn run(args: Vec<String>, data: String) {
 
         col.register_states(st.clone());
         let st2 = state[1].to_string();
-        col.register_prov([st.clone(), st2.clone()]);
+        col.register_prov([st.clone(), st2.clone(),name_to_ref_name(state[1].to_string())]);
         col.pop
             .register((st2.clone(), state[3].parse::<u8>().unwrap()))
     }
-    
-   // println!("{:#?}", col);
+
+    // println!("{:#?}", col);
     col.compile();
 }

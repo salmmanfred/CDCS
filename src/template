@@ -1,6 +1,6 @@
 -- Start of n2
 
-province = Province:create{ ref_name = "n2", color = colour }
+province = Province:create{ ref_name = "n3", color = colour }
 province.name = _("n2")
 Province:register(province)
 Province:add_pop(province, artisan, pop_name, relg, L1, 0.9)
