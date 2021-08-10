@@ -28,15 +28,15 @@ impl pop_creator {
             let fi = (weight as u64 * enc.clone()) as f64;
             // println!("{} , {}  , {}",fi,enc.clone(), weight.clone());
             let spread = vec![
-                (fi * 0.04) as u64,
-                (fi * 0.32) as u64,
-                (fi * 0.06) as u64,
-                (fi * 0.04) as u64,
-                (fi * 0.04) as u64,
-                (fi * 0.04) as u64,
-                (fi * 0.04) as u64,
-                (fi * 0.4) as u64,
-                (fi * 0.02) as u64,
+                (fi * 0.04).ceil() as u64,
+                (fi * 0.32).ceil() as u64,
+                (fi * 0.06).ceil() as u64,
+                (fi * 0.04).ceil() as u64,
+                (fi * 0.04).ceil() as u64,
+                (fi * 0.04).ceil() as u64,
+                (fi * 0.04).ceil() as u64,
+                (fi * 0.40).ceil() as u64,
+                (fi * 0.02).ceil() as u64,
             ];
             self.comp.push((name, spread));
         }

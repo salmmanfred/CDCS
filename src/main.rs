@@ -7,7 +7,7 @@ use crate::pop::pop_creator;
 mod ui_ext;
 #[derive(Debug)]
 struct stateColl {
-    states: Vec<Vec<(String,String)>>,
+    states: Vec<Vec<(String, String)>>,
     name: Vec<String>,
     nation: String,
     population: String,
@@ -40,7 +40,7 @@ impl stateColl {
     pub fn register_prov(&mut self, name: [String; 3]) {
         for x in 0..self.name.len() {
             if self.name[x] == name[0] {
-                self.states[x].push((name[1].clone(),name[2].clone()));
+                self.states[x].push((name[1].clone(), name[2].clone()));
             }
         }
     }
@@ -77,10 +77,12 @@ impl stateColl {
                 for x in 0..9 {
                     let ar = table[x];
                     newfile = str::replace(newfile.as_str(), table[x], pop[x].to_string().as_str());
-               
                 }
                 //adds a random colour here
-                let color = RandomColor::new().luminosity(Luminosity::Light).to_hex().replace("#", "0x");
+                let color = RandomColor::new()
+                    .luminosity(Luminosity::Light)
+                    .to_hex()
+                    .replace("#", "0x");
                 let newfile = str::replace(newfile.as_str(), "colour", color.as_str());
 
                 //println!("{}", newfile);
@@ -172,7 +174,11 @@ fn run(args: Vec<String>, data: String) {
 
         col.register_states(st.clone());
         let st2 = state[1].to_string();
-        col.register_prov([st.clone(), st2.clone(),name_to_ref_name(state[1].to_string())]);
+        col.register_prov([
+            st.clone(),
+            st2.clone(),
+            name_to_ref_name(state[1].to_string()),
+        ]);
         col.pop
             .register((st2.clone(), state[3].parse::<u8>().unwrap()))
     }

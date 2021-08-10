@@ -8,7 +8,7 @@ pub fn get_files() -> String {
 
     then it looks into the current folder and gets each file name and after that
     */
-    
+
     let mut list: Vec<String> = Vec::new();
     let mut list2: Vec<String> = Vec::new();
 
@@ -46,12 +46,12 @@ pub fn get_files() -> String {
         /*
         iterates through the loop and looks at each name and makes a button out of it
         */
-        master.push_str(&format!("{}\t|",list[x]))
+        master.push_str(&format!("{}\t|", list[x]))
     }
     /*
 
     it makes a scroll view and puts the stack into it
     */
-    
+
     master
 }
