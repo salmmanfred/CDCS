@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use crate::o;
+use std::collections::HashMap;
 
 #[derive(Debug)]
 pub struct pop_creator {
@@ -7,7 +7,7 @@ pub struct pop_creator {
     pub population: u64,
     amof: u64, // amounts of weights
     comp: Vec<(String, Vec<u64>)>,
-    comp_hash:  HashMap<String, Vec<u64>>
+    comp_hash: HashMap<String, Vec<u64>>,
 }
 
 impl pop_creator {
@@ -48,18 +48,11 @@ impl pop_creator {
         self
     }
     pub fn find(&self, name: String) -> Vec<u64> {
-        use std::time::Instant;
-        let now = Instant::now();
+        return o!(match self.comp_hash.get(&name) {
+            Some(x) => x,
+            None => panic!("{} not found!", name),
+        });
 
-        /*for (x, x2) in self.comp.clone() {
-            if x == name {
-
-                return x2;
-            }
-        }*/
-        println!("Extime: {}", now.elapsed().as_nanos());
-        return o!(self.comp_hash.get(&name).unwrap())
-
-       // panic!("{} does not exist!", name);
+        // panic!("{} does not exist!", name);
     }
 }

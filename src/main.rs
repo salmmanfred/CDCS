@@ -119,8 +119,8 @@ fn name_to_ref_name(name: String) -> String {
     let mut st = name;
     st.make_ascii_lowercase();
     let mut st2: String = s!("");
-    for x in st.chars(){
-        st2.push(  match x{
+    for x in st.chars() {
+        st2.push(match x {
             '-' => '_',
             ' ' => '_',
             'à' => 'a',
@@ -145,11 +145,11 @@ fn name_to_ref_name(name: String) -> String {
             'ö' => 'o',
             'ü' => 'u',
             'ÿ' => 'y',
-            
-            _ =>x,
+
+            _ => x,
         });
     }
-   
+
     st2
 }
 
