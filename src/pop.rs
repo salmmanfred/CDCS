@@ -44,7 +44,7 @@ impl pop_creator {
             ];
             self.comp_hash.insert(name, spread);
         }
-        //println!("{:#?}", self.comp);
+        
         self
     }
     pub fn find(&self, name: String) -> Vec<u64> {
@@ -52,7 +52,8 @@ impl pop_creator {
             Some(x) => x,
             None => panic!("{} not found!", name),
         });
-
         // panic!("{} does not exist!", name);
     }
+    
 }
+

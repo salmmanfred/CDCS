@@ -99,6 +99,7 @@ pub fn run() {
                     builder.args.push(pop_size.value());
 
                     crate::run(builder.args.clone(), openfile::read_file(&builder.file));
+                    builder.args = Vec::new();
                 }
                 Message::File => {
                     //println!("{:#?}", );

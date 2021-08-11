@@ -47,6 +47,7 @@ impl stateColl {
     pub fn compile(&mut self) {
         let mut files: String = "".to_string();
         let pop = self.pop.compile();
+        
         for x in 0..self.name.len() {
             for st in 0..self.states[x].len() {
                 let newfile = str::replace(
@@ -178,4 +179,5 @@ fn run(args: Vec<String>, data: String) {
 
     // println!("{:#?}", col);
     col.compile();
+    println!("done");
 }
