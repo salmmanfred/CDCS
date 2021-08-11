@@ -1,10 +1,13 @@
-#[derive(Debug)]
+use std::collections::HashMap;
+use crate::o;
 
+#[derive(Debug)]
 pub struct pop_creator {
     map: Vec<(String, u8)>,
     pub population: u64,
     amof: u64, // amounts of weights
     comp: Vec<(String, Vec<u64>)>,
+    comp_hash:  HashMap<String, Vec<u64>>
 }
 
 impl pop_creator {
@@ -14,6 +17,7 @@ impl pop_creator {
             population: 0,
             amof: 0,
             comp: Vec::new(),
+            comp_hash: HashMap::new(),
         }
     }
     pub fn register(&mut self, add: (String, u8)) {
@@ -38,17 +42,24 @@ impl pop_creator {
                 (fi * 0.40).ceil() as u64,
                 (fi * 0.02).ceil() as u64,
             ];
-            self.comp.push((name, spread));
+            self.comp_hash.insert(name, spread);
         }
         //println!("{:#?}", self.comp);
         self
     }
     pub fn find(&self, name: String) -> Vec<u64> {
-        for (x, x2) in self.comp.clone() {
+        use std::time::Instant;
+        let now = Instant::now();
+
+        /*for (x, x2) in self.comp.clone() {
             if x == name {
+
                 return x2;
             }
-        }
-        panic!("{} does not exist!", name);
+        }*/
+        println!("Extime: {}", now.elapsed().as_nanos());
+        return o!(self.comp_hash.get(&name).unwrap())
+
+       // panic!("{} does not exist!", name);
     }
 }

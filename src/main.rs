@@ -107,9 +107,7 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() == 0 {
         if args[1] != "ui" {
-            let x = openfile::read_file(args[4].as_str());
-
-            run(args, x);
+            run(args.clone(), openfile::read_file(args[4].as_str()));
             return;
         }
     }
@@ -117,47 +115,42 @@ fn main() {
     ui_ext::ui::run();
 }
 
-// TODO: There should be a better way to do this
-// not really sadly
 fn name_to_ref_name(name: String) -> String {
     let mut st = name;
     st.make_ascii_lowercase();
-    let st = st.replace("-", "_");
-    let st = st.replace(" ", "_");
-    let st = st.replace("à", "a");
-    let st = st.replace("è", "e");
-    let st = st.replace("ì", "i");
-    let st = st.replace("ò", "o");
-    let st = st.replace("ù", "u");
-
-    let st = st.replace("á", "a");
-    let st = st.replace("é", "e");
-    let st = st.replace("í", "i");
-    let st = st.replace("ó", "o");
-    let st = st.replace("ú", "u");
-    let st = st.replace("ý", "y");
-
-    let st = st.replace("â", "a");
-    let st = st.replace("ê", "e");
-    let st = st.replace("î", "i");
-    let st = st.replace("ô", "o");
-    let st = st.replace("û", "u");
-
-    let st = st.replace("ã", "a");
-    //let st = st.replace("e", "e");
-    //let st = st.replace("i", "i");
-    let st = st.replace("õ", "o");
-    //let st = st.replace("u", "u");
-    let st = st.replace("ñ", "n");
-
-    let st = st.replace("ä", "a");
-    let st = st.replace("ë", "e");
-    let st = st.replace("ï", "i");
-    let st = st.replace("ö", "o");
-    let st = st.replace("ü", "u");
-    let st = st.replace("ÿ", "y");
-
-    st
+    let mut st2: String = s!("");
+    for x in st.chars(){
+        st2.push(  match x{
+            '-' => '_',
+            ' ' => '_',
+            'à' => 'a',
+            'è' => 'e',
+            'ì' => 'i',
+            'ù' => 'u',
+            'ó' => 'o',
+            'ú' => 'u',
+            'ý' => 'y',
+            'â' => 'a',
+            'ê' => 'e',
+            'î' => 'i',
+            'ô' => 'o',
+            'û' => 'u',
+            'ã' => 'a',
+            'õ' => 'o',
+            'ñ' => 'n',
+            'ä' => 'a',
+            'å' => 'a',
+            'ë' => 'e',
+            'ï' => 'i',
+            'ö' => 'o',
+            'ü' => 'u',
+            'ÿ' => 'y',
+            
+            _ =>x,
+        });
+    }
+   
+    st2
 }
 
 fn run(args: Vec<String>, data: String) {
