@@ -6,7 +6,10 @@ mod pop;
 use crate::pop::PopCreator;
 
 mod ui_ext;
+#[allow(unused_imports)]
 use crate::ui_ext::err;
+mod err_traits;
+use crate::err_traits::*;
 #[derive(Debug)]
 struct StateColl {
     states: Vec<Vec<(String, String)>>,
@@ -93,7 +96,7 @@ impl StateColl {
                 files.push_str(&newfile.as_str());
             }
         }
-        openfile::write_file(&self.save, &files).expect("save error");
+        openfile::write_file(&self.save, &files).unwrap_e("Error writing your file");
     }
     pub fn register_args(&mut self, args: Vec<String>) {
         let args = args.clone();
@@ -101,15 +104,17 @@ impl StateColl {
         self.population = args[2].clone();
         self.religion = args[3].clone();
         self.save = args[4].clone();
-        self.pop.population = args[5].clone().parse().unwrap();
+        self.pop.population = args[5].clone().parse().unwrap_e("parse error");
     }
 }
+
+
 use std::env;
-mod ui;
+
 
 fn main() {
     
-    err::error("TheRussianDuck");
+    
     let args: Vec<String> = env::args().collect();
     if args.len() == 0 {
         if args[1] != "ui" {
@@ -165,7 +170,7 @@ fn run(args: Vec<String>, data: String) {
     let mut col = Box::new(StateColl::new());
     col.register_args(args.clone());
     let x = data;
-    let re = Regex::new(r#"\((.*),(.*),(\d*)\)"#).unwrap();
+    let re = Regex::new(r#"\((.*),(.*),(\d*)\)"#).unwrap_e("There seems to be an issue with your input file");
 
     for state in re.captures_iter(&x) {
         //println!("{:#?}", state);
@@ -179,7 +184,7 @@ fn run(args: Vec<String>, data: String) {
             name_to_ref_name(state[1].to_string()),
         ]);
         col.pop
-            .register((st2.clone(), state[3].parse::<u8>().unwrap()))
+            .register((st2.clone(), state[3].parse::<u8>().unwrap_e("Parse error2")))
     }
 
     // println!("{:#?}", col);

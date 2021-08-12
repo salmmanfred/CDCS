@@ -1,5 +1,6 @@
-use crate::o;
+use crate::{o, err_traits::UnwrapA};
 use std::collections::HashMap;
+//use crate::ui_ext::err;
 
 #[derive(Debug)]
 pub struct PopCreator {
@@ -48,10 +49,8 @@ impl PopCreator {
         self
     }
     pub fn find(&self, name: String) -> Vec<u64> {
-        return o!(match self.comp_hash.get(&name) {
-            Some(x) => x,
-            None => panic!("{} not found!", name),
-        });
+        o!(self.comp_hash.get(&name).unwrap_e(&format!("{} not found",name)))
+        
         // panic!("{} does not exist!", name);
     }
     

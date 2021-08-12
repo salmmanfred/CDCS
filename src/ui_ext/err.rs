@@ -16,8 +16,8 @@ pub fn error(str: &str){
     panic!("Err: {}",str);
 }
 
-const WIND_WID: i32 = 300;
-const WIND_HI: i32 = 200;
+const WIND_WID: i32 = 200;
+const WIND_HI: i32 = 160;
 
 const TEXT_WID: i32 = 100;
 
