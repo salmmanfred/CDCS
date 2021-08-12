@@ -1,5 +1,12 @@
 mod file;
 pub mod ui;
+pub mod err;
+
+
+/*
+i am not wasting more time doing &str.to_string()
+
+*/
 #[macro_export]
 macro_rules! s {
     ($e:expr) => {

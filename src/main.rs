@@ -1,23 +1,25 @@
+#[allow(non_snake_case)]
 use openfile;
-use random_color::{Color, Luminosity, RandomColor};
+use random_color::{Luminosity, RandomColor};
 use regex::Regex;
 mod pop;
-use crate::pop::pop_creator;
+use crate::pop::PopCreator;
 
 mod ui_ext;
+use crate::ui_ext::err;
 #[derive(Debug)]
-struct stateColl {
+struct StateColl {
     states: Vec<Vec<(String, String)>>,
     name: Vec<String>,
     nation: String,
     population: String,
     religion: String,
     save: String,
-    pub pop: pop_creator,
+    pub pop: PopCreator,
 }
-impl stateColl {
-    pub fn new() -> stateColl {
-        stateColl {
+impl StateColl {
+    pub fn new() -> StateColl {
+        StateColl {
             states: Vec::new(),
             name: Vec::new(),
 
@@ -25,7 +27,7 @@ impl stateColl {
             population: "the user forgot to enter a valid population name".to_string(),
             religion: "the user forgot to enter a valid religion".to_string(),
             save: "CDCSDEFAULT.CDCS".to_string(),
-            pop: pop_creator::new(),
+            pop: PopCreator::new(),
         }
     }
     pub fn register_states(&mut self, name: String) {
@@ -46,6 +48,8 @@ impl stateColl {
     }
     pub fn compile(&mut self) {
         let mut files: String = "".to_string();
+
+        // compile the weight map 
         let pop = self.pop.compile();
         
         for x in 0..self.name.len() {
@@ -76,7 +80,6 @@ impl stateColl {
                 let pop = pop.find(n2.clone());
                 // it then applies this here
                 for x in 0..9 {
-                    let ar = table[x];
                     newfile = str::replace(newfile.as_str(), table[x], pop[x].to_string().as_str());
                 }
                 //adds a random colour here
@@ -105,6 +108,8 @@ use std::env;
 mod ui;
 
 fn main() {
+    
+    err::error("TheRussianDuck");
     let args: Vec<String> = env::args().collect();
     if args.len() == 0 {
         if args[1] != "ui" {
@@ -157,7 +162,7 @@ fn name_to_ref_name(name: String) -> String {
 fn run(args: Vec<String>, data: String) {
     //(\((.* ?),( ?\w*)\)|(.*)\((.*\)))
 
-    let mut col = Box::new(stateColl::new());
+    let mut col = Box::new(StateColl::new());
     col.register_args(args.clone());
     let x = data;
     let re = Regex::new(r#"\((.*),(.*),(\d*)\)"#).unwrap();

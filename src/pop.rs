@@ -2,7 +2,7 @@ use crate::o;
 use std::collections::HashMap;
 
 #[derive(Debug)]
-pub struct pop_creator {
+pub struct PopCreator {
     map: Vec<(String, u8)>,
     pub population: u64,
     amof: u64, // amounts of weights
@@ -10,9 +10,9 @@ pub struct pop_creator {
     comp_hash: HashMap<String, Vec<u64>>,
 }
 
-impl pop_creator {
-    pub fn new() -> pop_creator {
-        pop_creator {
+impl PopCreator {
+    pub fn new() -> PopCreator {
+        PopCreator {
             map: Vec::new(),
             population: 0,
             amof: 0,
@@ -26,7 +26,7 @@ impl pop_creator {
         self.map.push(add);
     }
 
-    pub fn compile(&mut self) -> &pop_creator {
+    pub fn compile(&mut self) -> &PopCreator {
         let enc = self.population / self.amof;
         for (name, weight) in self.map.clone() {
             let fi = (weight as u64 * enc.clone()) as f64;
