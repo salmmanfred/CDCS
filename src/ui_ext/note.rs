@@ -1,17 +1,13 @@
-use fltk::{
-    app, button::Button, frame::Frame, prelude::*,
-    window::Window,
-};
 #[allow(unused_imports)]
-use crate::{s, o};
+use crate::{o, s};
+use fltk::{app, button::Button, frame::Frame, prelude::*, window::Window};
 
-#[derive(Debug,Clone)]
-enum Message{
+#[derive(Debug, Clone)]
+enum Message {
     Close,
 }
 
-
-pub fn note(str: &str, rt: Box<dyn Fn ()> ){
+pub fn note(str: &str, rt: Box<dyn Fn()>) {
     note_pop(str);
     rt();
 }
@@ -24,20 +20,20 @@ const TEXT_WID: i32 = 100;
 const BUTTON_WID: i32 = 120;
 const BUTTON_HI: i32 = 40;
 
-fn note_pop(str: &str){
+fn note_pop(str: &str) {
     let app = app::App::default().with_scheme(app::Scheme::Gtk);
     let mut wind = Window::default()
         .with_size(WIND_WID, WIND_HI)
         .with_label("Note");
     //format!("Error happen: {}",
-    let mut a = Frame::default().with_size(TEXT_WID, 100).with_label(&str.format_note(TEXT_WID, 4));
-    a.set_pos((WIND_WID - TEXT_WID) / 2,10);
-    let mut ok = Button::default().with_size(BUTTON_WID, BUTTON_HI).with_label("Ok");
+    let mut a = Frame::default()
+        .with_size(TEXT_WID, 100)
+        .with_label(&str.format_note(TEXT_WID, 4));
+    a.set_pos((WIND_WID - TEXT_WID) / 2, 10);
+    let mut ok = Button::default()
+        .with_size(BUTTON_WID, BUTTON_HI)
+        .with_label("Ok");
     ok.set_pos((WIND_WID - BUTTON_WID) / 2, WIND_HI - BUTTON_HI - 2);
-
-
-
-
 
     wind.end();
     wind.show();
@@ -48,32 +44,31 @@ fn note_pop(str: &str){
         if let Some(msg) = r.recv() {
             match msg {
                 Message::Close => {
-                app.quit();
+                    app.quit();
                 }
             }
         }
     }
     app.run().unwrap();
-
 }
 
-trait FormatNote{
-    fn format_note (&self, wid: i32, font: i32) -> String;
+trait FormatNote {
+    fn format_note(&self, wid: i32, font: i32) -> String;
 }
-impl FormatNote for str{
+impl FormatNote for str {
     fn format_note(&self, wid: i32, font: i32) -> String {
-        let wid = wid/font;
+        let wid = wid / font;
 
         let mut v: Vec<Vec<char>> = Vec::new();
         let mut mess = self.chars().collect::<Vec<char>>();
-        println!("{}, {}",mess.len(), wid as usize);
+        println!("{}, {}", mess.len(), wid as usize);
 
-        while mess.len() >= wid as usize{
-            println!("2 {}, {}",mess.len(), wid as usize);
+        while mess.len() >= wid as usize {
+            println!("2 {}, {}", mess.len(), wid as usize);
 
-            if mess.len() >= wid as usize{
+            if mess.len() >= wid as usize {
                 let mut split = wid as usize;
-                while mess[split-1] != ' '{
+                while mess[split - 1] != ' ' {
                     split -= 1;
                 }
 
@@ -82,19 +77,18 @@ impl FormatNote for str{
                 v.push(x);
 
                 mess = mess[split..mess.len()].to_vec();
-                
             }
         }
-        if mess.len() >= 1 && mess.len() <= wid as usize{
+        if mess.len() >= 1 && mess.len() <= wid as usize {
             let mut x = mess[0..mess.len()].to_vec();
             x.push('\n');
             v.push(x);
         }
         let mut string = s!("");
-        for x in v{
+        for x in v {
             string.push_str(&x.iter().collect::<String>())
         }
-        
+
         string
     }
 }

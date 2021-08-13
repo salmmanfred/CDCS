@@ -1,4 +1,4 @@
-use crate::{o, common_traits::UnwrapA};
+use crate::{common_traits::UnwrapA, o};
 use std::collections::HashMap;
 //use crate::ui_ext::err;
 
@@ -45,14 +45,15 @@ impl PopCreator {
             ];
             self.comp_hash.insert(name, spread);
         }
-        
+
         self
     }
     pub fn find(&self, name: String) -> Vec<u64> {
-        o!(self.comp_hash.get(&name).unwrap_e(&format!("{} not found",name)))
-        
+        o!(self
+            .comp_hash
+            .get(&name)
+            .unwrap_e(&format!("{} not found", name)))
+
         // panic!("{} does not exist!", name);
     }
-    
 }
-

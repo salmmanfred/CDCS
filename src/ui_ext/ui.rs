@@ -82,10 +82,9 @@ pub fn run() {
         if let Some(msg) = r.recv() {
             match msg {
                 Message::Build => {
-
                     /*
                     builds the builder and the arguments.
-                    
+
                     */
                     builder.args.push(s!("value"));
                     builder.args.push(nation_name.value());
