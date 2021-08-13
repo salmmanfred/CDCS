@@ -1,6 +1,8 @@
 #[allow(unused_imports)]
 use crate::{o, s};
 use fltk::{app, button::Button, frame::Frame, prelude::*, window::Window};
+use crate::ui_ext::FormatNote;
+use crate::common_traits::*;
 
 #[derive(Debug, Clone)]
 enum Message {
@@ -28,7 +30,7 @@ fn err_pop(str: &str) {
     //format!("Error happen: {}",
     let mut a = Frame::default()
         .with_size(TEXT_WID, 100)
-        .with_label(&str.format_er(TEXT_WID, 4));
+        .with_label(&str.format_note(TEXT_WID, 4));
     a.set_pos((WIND_WID - TEXT_WID) / 2, 10);
     let mut ok = Button::default()
         .with_size(BUTTON_WID, BUTTON_HI)
@@ -39,6 +41,7 @@ fn err_pop(str: &str) {
     wind.show();
     let (s, r) = app::channel::<Message>();
     ok.emit(s, Message::Close);
+    
 
     while app.wait() {
         if let Some(msg) = r.recv() {
@@ -49,7 +52,7 @@ fn err_pop(str: &str) {
             }
         }
     }
-    app.run().unwrap();
+    app.run().unwrap_e("error displaying the error window");
 }
 
 trait FormatErr {

@@ -30,10 +30,10 @@ impl<T> UnwrapA<T> for Option<T> {
 }
 
 pub trait UnwrapN {
-    fn unwrap_n(self, err_mes: &str, rt: Box<dyn Fn()>) -> bool;
+    fn unwrap_n(self, err_mes: &'static str, rt: Box<dyn Fn()>) -> bool;
 }
 impl<T, E> UnwrapN for Result<T, E> {
-    fn unwrap_n(self, err_mes: &str, rt: Box<dyn Fn()>) -> bool {
+    fn unwrap_n(self, err_mes: &'static str, rt: Box<dyn Fn()>) -> bool {
         match self {
             Ok(_) => true,
             Err(_) => {
@@ -44,7 +44,7 @@ impl<T, E> UnwrapN for Result<T, E> {
     }
 }
 impl<T> UnwrapN for Option<T> {
-    fn unwrap_n(self, err_mes: &str, rt: Box<dyn Fn()>) -> bool {
+    fn unwrap_n(self, err_mes: &'static str, rt: Box<dyn Fn()>) -> bool {
         match self {
             Some(_) => true,
             None => {

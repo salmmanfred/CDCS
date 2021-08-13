@@ -4,6 +4,7 @@ use random_color::{Luminosity, RandomColor};
 use regex::Regex;
 mod pop;
 use crate::pop::PopCreator;
+use std::collections::HashMap;
 
 mod ui_ext;
 #[allow(unused_imports)]
@@ -18,6 +19,8 @@ struct StateColl {
     population: String,
     religion: String,
     save: String,
+    name_hash: HashMap<String, usize>,
+
     pub pop: PopCreator,
 }
 impl StateColl {
@@ -25,7 +28,7 @@ impl StateColl {
         StateColl {
             states: Vec::new(),
             name: Vec::new(),
-
+            name_hash: HashMap::new(),
             nation: "the user forgot to enter a valid nation".to_string(),
             population: "the user forgot to enter a valid population name".to_string(),
             religion: "the user forgot to enter a valid religion".to_string(),
@@ -34,20 +37,17 @@ impl StateColl {
         }
     }
     pub fn register_states(&mut self, name: String) {
-        for x in self.name.clone() {
-            if x == name {
-                return ();
-            }
+        match self.name_hash.get(&name){
+            Some(_) =>{return ()}
+            _=>{}
         }
-        self.name.push(name);
+        self.name.push(name.clone());
+        self.name_hash.insert(name, self.name.len() - 1);
         self.states.push(Vec::new());
     }
     pub fn register_prov(&mut self, name: [String; 3]) {
-        for x in 0..self.name.len() {
-            if self.name[x] == name[0] {
-                self.states[x].push((name[1].clone(), name[2].clone()));
-            }
-        }
+        let x = self.name_hash.get(&name[0]).unwrap_e("Tried to register a province but failed horribly. ");
+        self.states[o!(x)].push((name[1].clone(), name[2].clone()));
     }
     pub fn compile(&mut self) {
         let mut files: String = "".to_string();
@@ -114,6 +114,7 @@ impl StateColl {
 use std::env;
 
 fn main() {
+    
     let args: Vec<String> = env::args().collect();
     if args.len() == 0 {
         if args[1] != "ui" {

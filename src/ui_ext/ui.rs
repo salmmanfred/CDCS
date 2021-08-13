@@ -2,6 +2,7 @@ use fltk::{
     app, button::Button, enums::*, frame::Frame, group::Pack, input::Input, prelude::*,
     window::Window, *,
 };
+use crate::common_traits::*;
 
 use crate::s;
 use crate::ui_ext::file;
@@ -28,7 +29,7 @@ pub fn run() {
     let app = app::App::default().with_scheme(app::Scheme::Gtk);
     let mut wind = Window::default()
         .with_size(500, 500)
-        .with_label("CDCS - Country Detail Collection System");
+        .with_label("CDCS - Country Detail Collection System @ 2.0.0");
 
     // ! Standard input fields and stuff made here
     let mut pack = Pack::default().with_size(120, 140);
@@ -115,5 +116,5 @@ pub fn run() {
             }
         }
     }
-    app.run().unwrap();
+    app.run().unwrap_e("error making the main window");
 }

@@ -1,14 +1,22 @@
 #[allow(unused_imports)]
 use crate::{o, s};
-use fltk::{app, button::Button, frame::Frame, prelude::*, window::Window};
+#[allow(unused_imports)]
+use fltk::{app::{self, Receiver, Sender}, button::Button, frame::Frame, prelude::*, window::Window};
+use crate::ui_ext::FormatNote;
+use crate::common_traits::*;
 
 #[derive(Debug, Clone)]
 enum Message {
     Close,
 }
 
-pub fn note(str: &str, rt: Box<dyn Fn()>) {
+pub fn note(str: &'static str, rt: Box<dyn Fn()>) {
+    
+    
+   
     note_pop(str);
+
+ 
     rt();
 }
 
@@ -20,7 +28,7 @@ const TEXT_WID: i32 = 100;
 const BUTTON_WID: i32 = 120;
 const BUTTON_HI: i32 = 40;
 
-fn note_pop(str: &str) {
+fn note_pop(str: &str ) {
     let app = app::App::default().with_scheme(app::Scheme::Gtk);
     let mut wind = Window::default()
         .with_size(WIND_WID, WIND_HI)
@@ -38,9 +46,12 @@ fn note_pop(str: &str) {
     wind.end();
     wind.show();
     let (s, r) = app::channel::<Message>();
+    
+        
     ok.emit(s, Message::Close);
 
     while app.wait() {
+        //println!("shit {:#?}",r.recv());
         if let Some(msg) = r.recv() {
             match msg {
                 Message::Close => {
@@ -49,46 +60,7 @@ fn note_pop(str: &str) {
             }
         }
     }
-    app.run().unwrap();
+    app.run().unwrap_e("Error making the note window");
 }
 
-trait FormatNote {
-    fn format_note(&self, wid: i32, font: i32) -> String;
-}
-impl FormatNote for str {
-    fn format_note(&self, wid: i32, font: i32) -> String {
-        let wid = wid / font;
 
-        let mut v: Vec<Vec<char>> = Vec::new();
-        let mut mess = self.chars().collect::<Vec<char>>();
-        println!("{}, {}", mess.len(), wid as usize);
-
-        while mess.len() >= wid as usize {
-            println!("2 {}, {}", mess.len(), wid as usize);
-
-            if mess.len() >= wid as usize {
-                let mut split = wid as usize;
-                while mess[split - 1] != ' ' {
-                    split -= 1;
-                }
-
-                let mut x = mess[0..split].to_vec();
-                x.push('\n');
-                v.push(x);
-
-                mess = mess[split..mess.len()].to_vec();
-            }
-        }
-        if mess.len() >= 1 && mess.len() <= wid as usize {
-            let mut x = mess[0..mess.len()].to_vec();
-            x.push('\n');
-            v.push(x);
-        }
-        let mut string = s!("");
-        for x in v {
-            string.push_str(&x.iter().collect::<String>())
-        }
-
-        string
-    }
-}
