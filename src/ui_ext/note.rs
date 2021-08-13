@@ -11,9 +11,9 @@ enum Message{
 }
 
 
-pub fn error(str: &str){
-    err_pop(str);
-    panic!("Err: {}",str);
+pub fn note(str: &str, rt: Box<dyn Fn ()> ){
+    note_pop(str);
+    rt();
 }
 
 const WIND_WID: i32 = 200;
@@ -24,13 +24,13 @@ const TEXT_WID: i32 = 100;
 const BUTTON_WID: i32 = 120;
 const BUTTON_HI: i32 = 40;
 
-fn err_pop(str: &str){
+fn note_pop(str: &str){
     let app = app::App::default().with_scheme(app::Scheme::Gtk);
     let mut wind = Window::default()
         .with_size(WIND_WID, WIND_HI)
-        .with_label("CDCS - Error");
+        .with_label("Note");
     //format!("Error happen: {}",
-    let mut a = Frame::default().with_size(TEXT_WID, 100).with_label(&str.format_er(TEXT_WID, 4));
+    let mut a = Frame::default().with_size(TEXT_WID, 100).with_label(&str.format_note(TEXT_WID, 4));
     a.set_pos((WIND_WID - TEXT_WID) / 2,10);
     let mut ok = Button::default().with_size(BUTTON_WID, BUTTON_HI).with_label("Ok");
     ok.set_pos((WIND_WID - BUTTON_WID) / 2, WIND_HI - BUTTON_HI - 2);
@@ -57,11 +57,11 @@ fn err_pop(str: &str){
 
 }
 
-trait FormatErr{
-    fn format_er (&self, wid: i32, font: i32) -> String;
+trait FormatNote{
+    fn format_note (&self, wid: i32, font: i32) -> String;
 }
-impl FormatErr for str{
-    fn format_er(&self, wid: i32, font: i32) -> String {
+impl FormatNote for str{
+    fn format_note(&self, wid: i32, font: i32) -> String {
         let wid = wid/font;
 
         let mut v: Vec<Vec<char>> = Vec::new();

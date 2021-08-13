@@ -1,5 +1,5 @@
 
-use crate::ui_ext::err;
+use crate::ui_ext::{err, note};
 
 //use crate::{s, o};
 
@@ -29,6 +29,37 @@ impl <T> UnwrapA<T> for Option<T>{
             None=>{
                 err::error(err_mes);
                 panic!("There might have been an error displaying your error")
+            }
+        }
+    }
+}
+
+pub trait UnwrapN{
+    fn unwrap_n(self, err_mes: &str, rt: Box<dyn Fn ()> ) -> bool;
+
+}
+impl <T, E> UnwrapN for Result<T, E>{
+    fn unwrap_n(self, err_mes: &str, rt: Box<dyn Fn ()> ) -> bool{
+        match self{
+            Ok(_) =>{
+                true
+            }
+            Err(_)=>{
+                note::note(err_mes, rt);
+                false
+            }
+        }
+    }
+}
+impl <T> UnwrapN for Option<T>{
+    fn unwrap_n(self, err_mes: &str, rt: Box<dyn Fn ()> ) -> bool {
+        match self{
+            Some(_) =>{
+                true
+            }
+            None=>{
+                note::note(err_mes, rt);
+                false
             }
         }
     }

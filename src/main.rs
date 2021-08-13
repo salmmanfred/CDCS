@@ -8,8 +8,8 @@ use crate::pop::PopCreator;
 mod ui_ext;
 #[allow(unused_imports)]
 use crate::ui_ext::err;
-mod err_traits;
-use crate::err_traits::*;
+mod common_traits;
+use crate::common_traits::*;
 #[derive(Debug)]
 struct StateColl {
     states: Vec<Vec<(String, String)>>,
@@ -99,12 +99,13 @@ impl StateColl {
         openfile::write_file(&self.save, &files).unwrap_e("Error writing your file");
     }
     pub fn register_args(&mut self, args: Vec<String>) {
+
         let args = args.clone();
         self.nation = args[1].clone();
         self.population = args[2].clone();
         self.religion = args[3].clone();
         self.save = args[4].clone();
-        self.pop.population = args[5].clone().parse().unwrap_e("parse error");
+        self.pop.population = args[5].clone().parse().unwrap_e("Population must be number");
     }
 }
 
@@ -168,6 +169,8 @@ fn run(args: Vec<String>, data: String) {
     //(\((.* ?),( ?\w*)\)|(.*)\((.*\)))
 
     let mut col = Box::new(StateColl::new());
+    if args[5].clone().parse::<u64>().unwrap_n("Population must be number", Box::new(|| {ui_ext::ui::run()})){
+        
     col.register_args(args.clone());
     let x = data;
     let re = Regex::new(r#"\((.*),(.*),(\d*)\)"#).unwrap_e("There seems to be an issue with your input file");
@@ -184,10 +187,12 @@ fn run(args: Vec<String>, data: String) {
             name_to_ref_name(state[1].to_string()),
         ]);
         col.pop
-            .register((st2.clone(), state[3].parse::<u8>().unwrap_e("Parse error2")))
+            .register((st2.clone(), state[3].parse::<u8>().unwrap_e(&format!("{}s weight is a invalid number!",&st))))
     }
 
-    // println!("{:#?}", col);
+    // println!("{:#?}", col);s
     col.compile();
     println!("done");
+}
+
 }
