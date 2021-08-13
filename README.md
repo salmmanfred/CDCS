@@ -1,6 +1,6 @@
 # CDCS
 CDCS is a helper program for modding and the making of Symphony of empires  
-![CDCS_2021-08-09_21-23-02](https://user-images.githubusercontent.com/32799244/129360405-836e370e-a143-47ff-bdd3-c87706fe47b8.png)
+![CDCS_2021-08-13_14-55-05](https://user-images.githubusercontent.com/32799244/129368963-062b3f6b-f667-47cd-b2c8-9dded887e3de.png)
 ![CDCS_2021-08-13_14-55-29](https://user-images.githubusercontent.com/32799244/129360522-9ebaf824-d228-49dd-86e1-1cc75be0db6c.png)
 
 
