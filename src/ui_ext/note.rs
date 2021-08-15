@@ -55,7 +55,7 @@ fn note_pop(str: &str ) {
         if let Some(msg) = r.recv() {
             match msg {
                 Message::Close => {
-                    app.quit();
+                    wind.flush();
                 }
             }
         }
