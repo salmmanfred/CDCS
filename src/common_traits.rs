@@ -1,6 +1,20 @@
 use crate::ui_ext::{err, note};
+use std::fmt;
 
 //use crate::{s, o};
+
+// A custom error to make readable errors for the user
+#[derive(Debug, Clone)]
+pub struct ErrorMsg(pub String);
+
+impl fmt::Display for ErrorMsg {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl std::error::Error for ErrorMsg {}
+
 
 pub trait UnwrapA<T> {
     fn unwrap_e(self, err_mes: &str) -> T;

@@ -8,6 +8,7 @@ mod pop;
 mod graphics;
 use crate::pop::PopCreator;
 use std::collections::HashMap;
+use std::error::Error;
 
 mod ui_ext;
 #[allow(unused_imports)]
@@ -40,16 +41,19 @@ impl StateColl {
         }
     }
     pub fn register_states(&mut self, name: String) {
-        match self.name_hash.get(&name){
-            Some(_) =>{return ()}
-            _=>{}
+        match self.name_hash.get(&name) {
+            Some(_) => return (),
+            _ => {}
         }
         self.name.push(name.clone());
         self.name_hash.insert(name, self.name.len() - 1);
         self.states.push(Vec::new());
     }
     pub fn register_prov(&mut self, name: [String; 3]) {
-        let x = self.name_hash.get(&name[0]).unwrap_e("Tried to register a province but failed horribly. ");
+        let x = self
+            .name_hash
+            .get(&name[0])
+            .unwrap_e("Tried to register a province but failed horribly. ");
         self.states[o!(x)].push((name[1].clone(), name[2].clone()));
     }
     pub fn compile(&mut self) {
@@ -117,15 +121,16 @@ impl StateColl {
 use std::env;
 
 fn main() {
-    
     let args: Vec<String> = env::args().collect();
     if args.len() == 0 {
         if args[1] != "ui" {
-            run(args.clone(), openfile::read_file(args[4].as_str()));
+            run(args.clone(), &args[4])
+                .map_err(|e| println!("{}", e))
+                .ok();
             return;
         }
     }
- 
+
     ui_ext::ui::run();
 }
 
@@ -167,41 +172,40 @@ fn name_to_ref_name(name: String) -> String {
     st2
 }
 
-fn run(args: Vec<String>, data: String) {
+fn run(args: Vec<String>, path: &String) -> Result<(), Box<dyn Error>> {
     //(\((.* ?),( ?\w*)\)|(.*)\((.*\)))
 
+    let data =
+        std::fs::read_to_string(&path).map_err(|_| ErrorMsg("Failed to read input file".into()))?;
+
     let mut col = Box::new(StateColl::new());
-    if args[5]
+    args[5]
         .clone()
         .parse::<u64>()
-        .unwrap_n("Population must be number", Box::new(|| ui_ext::ui::run()))
-    {
-        col.register_args(args.clone());
-        let x = data;
-        let re = Regex::new(r#"\((.*),(.*),(\d*)\)"#)
-            .unwrap_e("There seems to be an issue with your input file");
+        .map_err(|_| ErrorMsg("Population must be number".into()))?;
 
-        for state in re.captures_iter(&x) {
-            //println!("{:#?}", state);
-            let st = name_to_ref_name(state[2].to_string());
+    col.register_args(args.clone());
+    let re = Regex::new(r#"\((.*),(.*),(\d*)\)"#)?;
 
-            col.register_states(st.clone());
-            let st2 = state[1].to_string();
-            col.register_prov([
-                st.clone(),
-                st2.clone(),
-                name_to_ref_name(state[1].to_string()),
-            ]);
-            col.pop.register((
-                st2.clone(),
-                state[3]
-                    .parse::<u8>()
-                    .unwrap_e(&format!("{}s weight is a invalid number!", &st)),
-            ))
-        }
+    for state in re.captures_iter(&data) {
+        let st = name_to_ref_name(state[2].to_string());
 
-        // println!("{:#?}", col);s
-        col.compile();
-        println!("done");
+        col.register_states(st.clone());
+        let st2 = state[1].to_string();
+        col.register_prov([
+            st.clone(),
+            st2.clone(),
+            name_to_ref_name(state[1].to_string()),
+        ]);
+        col.pop.register((
+            st2.clone(),
+            state[3]
+                .parse::<u8>()
+                .unwrap_e(&format!("{}s weight is a invalid number!", &st)),
+        ))
     }
+
+    col.compile();
+    println!("done");
+    Ok(())
 }

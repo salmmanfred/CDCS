@@ -1,7 +1,7 @@
 use crate::common_traits::*;
 use fltk::{
-    app, button::Button, enums::*, frame::Frame, group::Pack, input::Input, prelude::*,
-    window::Window, *,
+    app, button::Button, enums::*, frame::Frame, group::Pack, input::Input,
+    output::MultilineOutput, prelude::*, window::Window, *,
 };
 
 use crate::s;
@@ -30,7 +30,7 @@ pub fn run() {
     let app = app::App::default().with_scheme(app::Scheme::Gtk);
     let map_size = (700, 500);
     let mut wind = Window::default()
-        .with_size(map_size.0 + 300, map_size.1)
+        .with_size(map_size.0 + 350, map_size.1)
         .with_label("CDCS - Country Detail Collection System @ 2.0.0");
 
     let mut map = Map::new(map_size);
@@ -74,6 +74,14 @@ pub fn run() {
     let mut build = Button::default().with_size(120, 40).with_label("Build");
     build.set_pos(map_size.0 + 150, 52);
 
+    // Output field for error messages
+    let mut error_disp = MultilineOutput::new(map_size.0 + 150, 100, 190, 150, "");
+    error_disp.set_wrap(true);
+    error_disp.set_color(Color::from_u32(0xc0c0c0));
+    error_disp.set_frame(FrameType::FlatBox);
+    error_disp.set_text_size(15);
+    error_disp.set_text_color(Color::from_u32(0x8f0000));
+
     wind.end();
     wind.show();
     map.init_context();
@@ -109,7 +117,11 @@ pub fn run() {
                     }
                     builder.args.push(pop_size.value());
 
-                    crate::run(builder.args.clone(), openfile::read_file(&builder.file));
+                    // Build and print on errors
+                    match crate::run(builder.args.clone(), &builder.file) {
+                        Ok(_) => (),
+                        Err(e) => error_disp.set_value(&e.to_string()),
+                    }
                     builder.args = Vec::new();
                 }
                 Message::File => {
