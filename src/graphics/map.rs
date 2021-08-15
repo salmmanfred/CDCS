@@ -14,17 +14,20 @@ struct Vertex {
     tex_coord: [f32; 2],
 }
 
-struct MapContext {
+
+pub struct MapContext {
     context: std::rc::Rc<glium::backend::Context>,
-    camera: camera::CameraState,
+    pub camera: camera::CameraState,
     shader: glium::Program,
     vertex_buffer: glium::VertexBuffer<Vertex>,
     index_buffer: glium::IndexBuffer<u16>,
     texture: glium::texture::SrgbTexture2d,
 }
+
+
 pub struct Map {
     pub widget: window::GlutWindow,
-    map_context: Option<MapContext>,
+    pub map_context: Option<MapContext>,
 }
 
 impl Map {

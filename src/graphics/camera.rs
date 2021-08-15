@@ -3,12 +3,12 @@ pub struct CameraState {
     position: (f32, f32, f32),
     direction: (f32, f32, f32),
 
-    moving_up: bool,
-    moving_left: bool,
-    moving_down: bool,
-    moving_right: bool,
-    moving_forward: bool,
-    moving_backward: bool,
+    pub moving_up: bool,
+    pub moving_left: bool,
+    pub moving_down: bool,
+    pub moving_right: bool,
+    pub moving_forward: bool,
+    pub moving_backward: bool,
 }
 
 impl CameraState {

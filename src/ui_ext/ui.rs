@@ -121,6 +121,28 @@ pub fn run() {
                 }
             }
         }
+        else{
+            
+            match app::event_key(){
+
+                Key::Up =>{
+                    //map.map_context.unwrap().camera.set_position((0.,1.,1.));
+                },
+                Key::Down =>{
+
+                },
+                Key::Left =>{
+
+                },
+                Key::Right =>{
+
+                },
+
+                _=>{
+
+                }
+            }
+        }
     }
     app.run().unwrap_e("error making the main window");
 }
