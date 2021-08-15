@@ -1,8 +1,8 @@
+use crate::common_traits::*;
 use fltk::{
     app, button::Button, enums::*, frame::Frame, group::Pack, input::Input, prelude::*,
     window::Window, *,
 };
-use crate::common_traits::*;
 
 use crate::s;
 use crate::ui_ext::file;
@@ -11,6 +11,7 @@ enum Message {
     Build,
     File,
 }
+use crate::graphics::map::Map;
 
 struct Builder {
     pub file: String,
@@ -27,13 +28,16 @@ impl Builder {
 
 pub fn run() {
     let app = app::App::default().with_scheme(app::Scheme::Gtk);
+    let map_size = (700, 500);
     let mut wind = Window::default()
-        .with_size(500, 500)
+        .with_size(map_size.0 + 300, map_size.1)
         .with_label("CDCS - Country Detail Collection System @ 2.0.0");
+
+    let mut map = Map::new(map_size);
 
     // ! Standard input fields and stuff made here
     let mut pack = Pack::default().with_size(120, 140);
-    pack.set_pos(2, 0);
+    pack.set_pos(map_size.0 + 2, 0);
     pack.set_spacing(10);
     let _ = Frame::default().with_size(0, 40).with_label("Nation name");
     let nation_name = Input::default().with_size(0, 40).with_label("-");
@@ -56,7 +60,7 @@ pub fn run() {
         .with_size(120, 40)
         .with_label("Select file");
 
-    frame2.set_pos(150, 2);
+    frame2.set_pos(map_size.0 + 150, 2);
     let mut menu = menu::MenuButton::default()
         .size_of(&frame2)
         .center_of(&frame2)
@@ -68,10 +72,12 @@ pub fn run() {
     });
 
     let mut build = Button::default().with_size(120, 40).with_label("Build");
-    build.set_pos(150, 52);
+    build.set_pos(map_size.0 + 150, 52);
 
     wind.end();
     wind.show();
+    map.init_context();
+    map.draw();
 
     let (s, r) = app::channel::<Message>();
 
