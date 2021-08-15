@@ -1,8 +1,11 @@
 #[allow(non_snake_case)]
+#[macro_use]
+extern crate glium;
 use openfile;
 use random_color::{Luminosity, RandomColor};
 use regex::Regex;
 mod pop;
+mod graphics;
 use crate::pop::PopCreator;
 use std::collections::HashMap;
 
