@@ -30,7 +30,7 @@ pub fn run() {
     let app = app::App::default().with_scheme(app::Scheme::Gtk);
     let map_size = (700, 500);
     let mut wind = Window::default()
-        .with_size(map_size.0 + 300, map_size.1)
+        .with_size(map_size.0 + 350, map_size.1)
         .with_label("CDCS - Country Detail Collection System @ 2.0.0");
 
     let mut map = Map::new(map_size);
@@ -75,7 +75,7 @@ pub fn run() {
     build.set_pos(map_size.0 + 150, 52);
 
     // Output field for error messages
-    let mut error_disp = MultilineOutput::new(150, 100, 300, 300, "");
+    let mut error_disp = MultilineOutput::new(map_size.0 + 150, 100, 190, 150, "");
     error_disp.set_wrap(true);
     error_disp.set_color(Color::from_u32(0xc0c0c0));
     error_disp.set_frame(FrameType::FlatBox);
