@@ -1,8 +1,8 @@
-use fltk::{
-    app, button::Button, enums::*, frame::Frame, group::Pack, input::Input, prelude::*,
-    window::Window, *,
-};
 use crate::common_traits::*;
+use fltk::{
+    app, button::Button, enums::*, frame::Frame, group::Pack, input::Input,
+    output::MultilineOutput, prelude::*, window::Window, *,
+};
 
 use crate::s;
 use crate::ui_ext::file;
@@ -70,6 +70,14 @@ pub fn run() {
     let mut build = Button::default().with_size(120, 40).with_label("Build");
     build.set_pos(150, 52);
 
+    // Output field for error messages
+    let mut error_disp = MultilineOutput::new(150, 100, 300, 300, "");
+    error_disp.set_wrap(true);
+    error_disp.set_color(Color::from_u32(0xc0c0c0));
+    error_disp.set_frame(FrameType::FlatBox);
+    error_disp.set_text_size(15);
+    error_disp.set_text_color(Color::from_u32(0x8f0000));
+
     wind.end();
     wind.show();
 
@@ -103,7 +111,11 @@ pub fn run() {
                     }
                     builder.args.push(pop_size.value());
 
-                    crate::run(builder.args.clone(), openfile::read_file(&builder.file));
+                    // Build and print on errors
+                    match crate::run(builder.args.clone(), &builder.file) {
+                        Ok(_) => (),
+                        Err(e) => error_disp.set_value(&e.to_string()),
+                    }
                     builder.args = Vec::new();
                 }
                 Message::File => {
