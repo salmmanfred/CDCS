@@ -1,8 +1,8 @@
+pub mod ask;
 pub mod err;
 mod file;
 pub mod note;
 pub mod ui;
-
 /*
 i am not wasting more time doing &str.to_string()
 
@@ -35,7 +35,7 @@ impl FormatNote for str {
 
             if mess.len() >= wid as usize {
                 let mut split = wid as usize;
-                while mess[split - 1] != ' '  {
+                while mess[split - 1] != ' ' {
                     split -= 1;
                 }
 

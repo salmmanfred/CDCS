@@ -4,15 +4,15 @@ extern crate glium;
 use openfile;
 use random_color::{Luminosity, RandomColor};
 use regex::Regex;
-mod pop;
 mod graphics;
+mod pop;
 use crate::pop::PopCreator;
 use std::collections::HashMap;
 use std::error::Error;
 
 mod ui_ext;
 #[allow(unused_imports)]
-use crate::ui_ext::err;
+use crate::ui_ext::{ask, err, note};
 mod common_traits;
 use crate::common_traits::*;
 #[derive(Debug)]
@@ -41,10 +41,10 @@ impl StateColl {
         }
     }
     pub fn register_states(&mut self, name: String) {
-        match self.name_hash.get(&name) {
-            Some(_) => return (),
+        /*match self.name_hash.get(&name) {
+            Some(_) => println!("it happen"),//return (),
             _ => {}
-        }
+        }*/
         self.name.push(name.clone());
         self.name_hash.insert(name, self.name.len() - 1);
         self.states.push(Vec::new());
@@ -103,7 +103,8 @@ impl StateColl {
                 files.push_str(&newfile.as_str());
             }
         }
-        openfile::write_file(&self.save, &files).unwrap_e("Error writing your file");
+        files.write_file(&self.save);
+        //openfile::write_file(&self.save, &files).unwrap_e("Error writing your file");
     }
     pub fn register_args(&mut self, args: Vec<String>) {
         let args = args.clone();
@@ -121,6 +122,8 @@ impl StateColl {
 use std::env;
 
 fn main() {
+    note::note("This is a pre-release");
+
     let args: Vec<String> = env::args().collect();
     if args.len() == 0 {
         if args[1] != "ui" {

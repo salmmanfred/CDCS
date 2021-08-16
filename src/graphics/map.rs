@@ -14,7 +14,6 @@ struct Vertex {
     tex_coord: [f32; 2],
 }
 
-
 pub struct MapContext {
     context: std::rc::Rc<glium::backend::Context>,
     pub camera: camera::CameraState,
@@ -23,7 +22,6 @@ pub struct MapContext {
     index_buffer: glium::IndexBuffer<u16>,
     texture: glium::texture::SrgbTexture2d,
 }
-
 
 pub struct Map {
     pub widget: window::GlutWindow,

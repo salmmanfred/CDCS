@@ -1,6 +1,7 @@
-use crate::ui_ext::{err, note};
+use crate::ui_ext::{ask, err, note};
+use openfile;
 use std::fmt;
-
+use std::path::Path;
 //use crate::{s, o};
 
 // A custom error to make readable errors for the user
@@ -14,7 +15,6 @@ impl fmt::Display for ErrorMsg {
 }
 
 impl std::error::Error for ErrorMsg {}
-
 
 pub trait UnwrapA<T> {
     fn unwrap_e(self, err_mes: &str) -> T;
@@ -44,27 +44,48 @@ impl<T> UnwrapA<T> for Option<T> {
 }
 
 pub trait UnwrapN {
-    fn unwrap_n(self, err_mes: &'static str, rt: Box<dyn Fn()>) -> bool;
+    fn unwrap_n(self, err_mes: &'static str) -> bool;
 }
 impl<T, E> UnwrapN for Result<T, E> {
-    fn unwrap_n(self, err_mes: &'static str, rt: Box<dyn Fn()>) -> bool {
+    fn unwrap_n(self, err_mes: &'static str) -> bool {
         match self {
             Ok(_) => true,
             Err(_) => {
-                note::note(err_mes, rt);
+                // note::note(err_mes, rt);
                 false
             }
         }
     }
 }
 impl<T> UnwrapN for Option<T> {
-    fn unwrap_n(self, err_mes: &'static str, rt: Box<dyn Fn()>) -> bool {
+    fn unwrap_n(self, err_mes: &'static str) -> bool {
         match self {
             Some(_) => true,
             None => {
-                note::note(err_mes, rt);
+                // note::note(err_mes, rt);
                 false
             }
         }
+    }
+}
+pub trait Write {
+    fn write_file(&self, path: &str);
+}
+impl Write for String {
+    fn write_file(&self, path: &str) {
+        let text = self.as_str();
+        if !Path::new(path).exists() {
+            openfile::write_file(path, text).unwrap_e("Error writing your file");
+            return ();
+        } else {
+            if ask::ask(&format!(
+                "the file {} already exists do you want to over write it?",
+                path
+            )) {
+                openfile::write_file(path, text).unwrap_e("Error writing your file");
+                return ();
+            }
+        }
+        println!("did not write file");
     }
 }

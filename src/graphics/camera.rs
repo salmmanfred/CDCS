@@ -19,7 +19,7 @@ impl CameraState {
             direction: (0.0, 0.0, -1.0),
             moving_up: false,
             moving_left: false,
-            moving_down: false,
+            moving_down: true,
             moving_right: false,
             moving_forward: false,
             moving_backward: false,
