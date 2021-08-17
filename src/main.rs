@@ -1,6 +1,7 @@
 #[allow(non_snake_case)]
 #[macro_use]
 extern crate glium;
+extern crate nalgebra_glm as glm;
 use openfile;
 use random_color::{Luminosity, RandomColor};
 use regex::Regex;
