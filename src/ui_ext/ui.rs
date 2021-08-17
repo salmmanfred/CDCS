@@ -104,6 +104,14 @@ pub fn run() {
     let mut builder = Builder::new();
 
     while app.wait() {
+        if map.update() {
+            // Only draw the map only when it has changed
+            map.widget.redraw();
+
+            map.draw();
+        }
+      
+
         if let Some(msg) = r.recv() {
             match msg {
                 Message::Build => {
@@ -147,10 +155,7 @@ pub fn run() {
             }
         } else {
 
-            if map.update() {
-                // Only draw the map only when it has changed
-                map.draw();
-            }
+            
 
             match app::event_key() {
                 Key::Up => {
