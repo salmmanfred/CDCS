@@ -1,11 +1,14 @@
 use crate::common_traits::*;
 use fltk::{
-    app, button::Button, enums::*, frame::Frame, group::Pack, input::Input,
+    app, app::wait_for, button::Button, enums::*, frame::Frame, group::Pack, input::Input,
     output::MultilineOutput, prelude::*, window::Window, *,
 };
 
 use crate::s;
 use crate::ui_ext::file;
+
+use std::time::Instant;
+
 #[derive(Debug, Clone, Copy)]
 enum Message {
     Build,
@@ -93,7 +96,6 @@ pub fn run() {
     wind.end();
     wind.show();
     map.init_context();
-    // map.draw();
 
     let (s, r) = app::channel::<Message>();
 
@@ -146,22 +148,6 @@ pub fn run() {
                 }
             }
         } else {
-
-            // if map.update() {
-            //     // Only draw the map only when it has changed
-            //     map.draw();
-            // }
-
-            match app::event_key() {
-                Key::Up => {
-                    //map.map_context.unwrap().camera.set_position((0.,1.,1.));
-                }
-                Key::Down => {}
-                Key::Left => {}
-                Key::Right => {}
-
-                _ => {}
-            }
         }
     }
     app.run().unwrap_e("error making the main window");

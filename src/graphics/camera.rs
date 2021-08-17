@@ -1,3 +1,4 @@
+use super::tween;
 use glm::*;
 
 pub struct CameraState {
@@ -8,6 +9,8 @@ pub struct CameraState {
     far_plane: f32,
     dragging: bool,
     last_drag_pos: (f32, f32),
+    target_zoom: f32,
+    zoom_tween: tween::Tween,
 }
 
 fn matrix_to_array(mat: Mat4) -> [[f32; 4]; 4] {
@@ -21,14 +24,18 @@ fn matrix_to_array(mat: Mat4) -> [[f32; 4]; 4] {
 
 impl CameraState {
     pub fn new(screen_size: (i32, i32)) -> CameraState {
+        let mut zoom_tween = tween::Tween::new(0.2);
+        zoom_tween.start(0.2, 0.2);
         CameraState {
             screen_size: (screen_size.0 as f32, screen_size.1 as f32),
+            target_zoom: 0.2,
             position: glm::Vec3::new(0.5, 0.5, 0.2),
             fov: 75.0,
             near_plane: 0.001,
             far_plane: 10.0,
             dragging: false,
             last_drag_pos: (0.0, 0.0),
+            zoom_tween: zoom_tween,
         }
     }
 
