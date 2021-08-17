@@ -142,24 +142,17 @@ impl Map {
             texture: opengl_texture,
         });
     }
-    pub fn update(&mut self) -> bool {
+    pub fn update(&mut self) {
         // FLTK fails to capture some event types over the map,
         // so we have to use Event::NoEvent
-        let mut changed = false;
 
         // Move map
         let mouse_pos = app::event_coords();
         if app::event_button() == app::MouseButton::Middle as i32 {
-            changed |= match app::event() {
-                Event::Released | Event::NoEvent => {
-                    self.camera.update(mouse_pos, false);
-                    true
-                }
-                Event::Drag => {
-                    self.camera.update(mouse_pos, true);
-                    true
-                }
-                _ => false,
+            match app::event() {
+                Event::Released | Event::NoEvent => self.camera.update(mouse_pos, false),
+                Event::Drag => self.camera.update(mouse_pos, true),
+                _ => (),
             }
         }
 
@@ -170,19 +163,12 @@ impl Map {
                 .is_same(&self.widget)
             && app::event() == Event::NoEvent
         {
-            changed |= match app::event_dy() {
-                app::MouseWheel::Up => {
-                    self.camera.scroll(1.1);
-                    true
-                }
-                app::MouseWheel::Down => {
-                    self.camera.scroll(0.9);
-                    true
-                }
-                _ => false,
+            match app::event_dy() {
+                app::MouseWheel::Up => self.camera.scroll(1.1),
+                app::MouseWheel::Down => self.camera.scroll(0.9),
+                _ => (),
             }
         }
-        return changed;
     }
     // Must be called after init_context()
     pub fn draw(&self) {

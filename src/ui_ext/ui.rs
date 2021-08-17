@@ -1,11 +1,14 @@
 use crate::common_traits::*;
 use fltk::{
-    app, button::Button, enums::*, frame::Frame, group::Pack, input::Input,
+    app, app::wait_for, button::Button, enums::*, frame::Frame, group::Pack, input::Input,
     output::MultilineOutput, prelude::*, window::Window, *,
 };
 
 use crate::s;
 use crate::ui_ext::file;
+
+use std::time::Instant;
+
 #[derive(Debug, Clone, Copy)]
 enum Message {
     Build,
@@ -103,7 +106,31 @@ pub fn run() {
 
     let mut builder = Builder::new();
 
-    while app.wait() {
+    let secs_between_frames = 1. / 60.;
+    let mut last_time = Instant::now();
+
+    loop {
+        let secs_elapsed = last_time.elapsed().as_secs_f32();
+        let secs_remaining = secs_between_frames - secs_elapsed;
+        if secs_remaining > 0.0 {
+            match wait_for(secs_remaining as f64) {
+                Err(_) => app.run().unwrap_e("error making the main window"),
+                Ok(x) => match x {
+                    false => {
+                        // There is no event, so just update and draw the map
+                        map.draw();
+                        last_time = Instant::now();
+                        continue;
+                    }
+                    true => (),
+                },
+            }
+        } else {
+            map.draw();
+            last_time = Instant::now();
+            continue;
+        }
+
         if let Some(msg) = r.recv() {
             match msg {
                 Message::Build => {
@@ -146,11 +173,7 @@ pub fn run() {
                 }
             }
         } else {
-
-            if map.update() {
-                // Only draw the map only when it has changed
-                map.draw();
-            }
+            map.update();
 
             match app::event_key() {
                 Key::Up => {
