@@ -1,19 +1,24 @@
 #[allow(non_snake_case)]
 #[macro_use]
 extern crate glium;
+
 extern crate nalgebra_glm as glm;
 use openfile;
+
+
 use random_color::{Luminosity, RandomColor};
 use regex::Regex;
-mod pop;
 mod graphics;
+mod pop;
 use crate::pop::PopCreator;
 use std::collections::HashMap;
 use std::error::Error;
-
+#[macro_use]
+use serde;
 mod ui_ext;
 #[allow(unused_imports)]
-use crate::ui_ext::err;
+use crate::ui_ext::popups::{ask, err, note};
+
 mod common_traits;
 use crate::common_traits::*;
 #[derive(Debug)]
@@ -42,10 +47,10 @@ impl StateColl {
         }
     }
     pub fn register_states(&mut self, name: String) {
-        match self.name_hash.get(&name) {
-            Some(_) => return (),
+        /*match self.name_hash.get(&name) {
+            Some(_) => println!("it happen"),//return (),
             _ => {}
-        }
+        }*/
         self.name.push(name.clone());
         self.name_hash.insert(name, self.name.len() - 1);
         self.states.push(Vec::new());
@@ -57,7 +62,7 @@ impl StateColl {
             .unwrap_e("Tried to register a province but failed horribly. ");
         self.states[o!(x)].push((name[1].clone(), name[2].clone()));
     }
-    pub fn compile(&mut self) {
+    pub fn compile(&mut self, settings: Settings) {
         let mut files: String = "".to_string();
 
         // compile the weight map
@@ -104,7 +109,8 @@ impl StateColl {
                 files.push_str(&newfile.as_str());
             }
         }
-        openfile::write_file(&self.save, &files).unwrap_e("Error writing your file");
+        files.write_file(&self.save, settings);
+        //openfile::write_file(&self.save, &files).unwrap_e("Error writing your file");
     }
     pub fn register_args(&mut self, args: Vec<String>) {
         let args = args.clone();
@@ -122,10 +128,15 @@ impl StateColl {
 use std::env;
 
 fn main() {
+    note::note("This is a pre-release");
+    let settings = match Settings::load() {
+        Some(a) => a,
+        None => Settings::new(),
+    };
     let args: Vec<String> = env::args().collect();
     if args.len() == 0 {
         if args[1] != "ui" {
-            run(args.clone(), &args[4])
+            run(args.clone(), &args[4], settings)
                 .map_err(|e| println!("{}", e))
                 .ok();
             return;
@@ -173,7 +184,7 @@ fn name_to_ref_name(name: String) -> String {
     st2
 }
 
-fn run(args: Vec<String>, path: &String) -> Result<(), Box<dyn Error>> {
+fn run(args: Vec<String>, path: &String, settings: Settings) -> Result<(), Box<dyn Error>> {
     //(\((.* ?),( ?\w*)\)|(.*)\((.*\)))
 
     let data =
@@ -206,7 +217,7 @@ fn run(args: Vec<String>, path: &String) -> Result<(), Box<dyn Error>> {
         ))
     }
 
-    col.compile();
+    col.compile(settings);
     println!("done");
     Ok(())
 }

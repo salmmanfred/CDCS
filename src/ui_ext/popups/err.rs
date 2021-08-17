@@ -1,8 +1,8 @@
+use crate::common_traits::*;
+use crate::ui_ext::FormatNote;
 #[allow(unused_imports)]
 use crate::{o, s};
 use fltk::{app, button::Button, frame::Frame, prelude::*, window::Window};
-use crate::ui_ext::FormatNote;
-use crate::common_traits::*;
 
 #[derive(Debug, Clone)]
 enum Message {
@@ -41,7 +41,6 @@ fn err_pop(str: &str) {
     wind.show();
     let (s, r) = app::channel::<Message>();
     ok.emit(s, Message::Close);
-    
 
     while app.wait() {
         if let Some(msg) = r.recv() {
