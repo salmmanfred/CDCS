@@ -3,7 +3,7 @@ use openfile;
 use serde_json::json;
 use std::fmt;
 use std::path::Path;
-
+const SAVE_FILE: &'static str = "./settings";
 //use crate::{s, o};
 
 // A custom error to make readable errors for the user
@@ -107,8 +107,8 @@ impl Settings {
         Settings { warn: true }
     }
     pub fn load() -> Option<Settings> {
-        if Path::new("./.settings").exists() {
-            let json = openfile::read_file("./.settings");
+        if Path::new(SAVE_FILE).exists() {
+            let json = openfile::read_file(SAVE_FILE);
             let x = json!(json);
             
 
@@ -123,7 +123,7 @@ impl Settings {
     }
     pub fn save(&self) {
         openfile::write_file(
-            "./.settings",
+            SAVE_FILE,
             &serde_json::to_string(self).unwrap_e("failed to create json"),
         )
         .unwrap_e("fucked up saving your settings sorry");
