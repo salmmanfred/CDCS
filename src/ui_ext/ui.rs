@@ -10,6 +10,7 @@ use crate::ui_ext::file;
 enum Message {
     Build,
     File,
+    Settings,
 }
 use crate::graphics::map::Map;
 
@@ -27,6 +28,10 @@ impl Builder {
 }
 
 pub fn run() {
+    let mut settings_head = match Settings::load() {
+        Some(a) => a,
+        None => Settings::new(),
+    };
     let app = app::App::default().with_scheme(app::Scheme::Gtk);
     let map_size = (700, 500);
     let mut wind = Window::default()
@@ -74,6 +79,9 @@ pub fn run() {
     let mut build = Button::default().with_size(120, 40).with_label("Build");
     build.set_pos(map_size.0 + 150, 52);
 
+    let mut settings = Button::default().with_size(120, 40).with_label("Settings");
+    settings.set_pos(map_size.0 + 230, 460);
+
     // Output field for error messages
     let mut error_disp = MultilineOutput::new(map_size.0 + 150, 100, 190, 150, "");
     error_disp.set_wrap(true);
@@ -91,6 +99,8 @@ pub fn run() {
 
     build.emit(s, Message::Build);
     menu.emit(s, Message::File);
+    settings.emit(s, Message::Settings);
+
     let mut builder = Builder::new();
 
     while app.wait() {
@@ -118,7 +128,7 @@ pub fn run() {
                     builder.args.push(pop_size.value());
 
                     // Build and print on errors
-                    match crate::run(builder.args.clone(), &builder.file) {
+                    match crate::run(builder.args.clone(), &builder.file, settings_head.clone()) {
                         Ok(_) => (),
                         Err(e) => error_disp.set_value(&e.to_string()),
                     }
@@ -130,6 +140,9 @@ pub fn run() {
                         frame2.set_label(&msg);
                         builder.file = msg;
                     }
+                }
+                Message::Settings => {
+                    settings_head.change();
                 }
             }
         } else {

@@ -1,3 +1,4 @@
+#[allow(unused_imports)]
 use crate::common_traits::*;
 use crate::ui_ext::FormatNote;
 #[allow(unused_imports)]
@@ -11,12 +12,7 @@ use fltk::{
     window::Window,
 };
 
-#[derive(Debug, Clone)]
-enum Message {
-    Close,
-}
-
-pub fn note(str: &'static str) {
+pub fn note(str: &str) {
     let mut wind = note_pop(str);
 
     wind.show();
@@ -39,7 +35,7 @@ const BUTTON_HI: i32 = 40;
 
 fn note_pop(str: &str) -> Window {
     //  let app = app::App::default().with_scheme(app::Scheme::Gtk);
-    let mut wind = Window::default()
+    let wind = Window::default()
         .with_size(WIND_WID, WIND_HI)
         .with_label("Note");
     //format!("Error happen: {}",

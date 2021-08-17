@@ -1,8 +1,8 @@
 #[allow(unused_imports)]
 use crate::common_traits::*;
-use crate::ui_ext::FormatNote;
 #[allow(unused_imports)]
-use crate::ui_ext::{ask, err, note};
+use crate::ui_ext::popups::{err, note};
+use crate::ui_ext::FormatNote;
 #[allow(unused_imports)]
 use crate::{o, s};
 #[allow(unused_imports)]
@@ -62,7 +62,7 @@ const BUTTON_HI: i32 = 40;
 
 fn ask_pop(str: &str) -> (Window, Button, Button) {
     //  let app = app::App::default().with_scheme(app::Scheme::Gtk);
-    let mut wind = Window::default()
+    let wind = Window::default()
         .with_size(WIND_WID, WIND_HI)
         .with_label("!");
     //format!("Error happen: {}",
