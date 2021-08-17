@@ -168,7 +168,7 @@ impl Map {
             && app::belowmouse::<window::GlutWindow>()
                 .unwrap()
                 .is_same(&self.widget)
-            && app::event() == Event::NoEvent
+                && (app::event() == Event::NoEvent || app::event() == Event::MouseWheel)
         {
             changed |= match app::event_dy() {
                 app::MouseWheel::Up => {
