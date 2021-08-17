@@ -161,6 +161,9 @@ impl Map {
             && app::belowmouse::<window::GlutWindow>()
                 .unwrap()
                 .is_same(&self.widget)
+
+                && (app::event() == Event::NoEvent || app::event() == Event::MouseWheel)
+
         {
             match scroll {
                 x if x > 0 => self.camera.scroll(1.1),

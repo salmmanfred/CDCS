@@ -128,6 +128,7 @@ pub fn run() {
             },
         }
 
+
         if let Some(msg) = r.recv() {
             match msg {
                 Message::Build => {
@@ -170,11 +171,13 @@ pub fn run() {
                 }
             }
         } else {
+
             if app::event() == Event::NoEvent || app::event() == Event::MouseWheel {
                 match app::event_dy() {
                     app::MouseWheel::Up => scroll += 1,
                     app::MouseWheel::Down => scroll -= 1,
                     _ => (),
+
                 }
                 println!("TJA");
             }
