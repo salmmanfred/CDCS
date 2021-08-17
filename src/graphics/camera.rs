@@ -1,3 +1,4 @@
+use super::tween;
 use glm::*;
 
 pub struct CameraState {
@@ -8,6 +9,8 @@ pub struct CameraState {
     far_plane: f32,
     dragging: bool,
     last_drag_pos: (f32, f32),
+    target_zoom: f32,
+    zoom_tween: tween::Tween,
 }
 
 fn matrix_to_array(mat: Mat4) -> [[f32; 4]; 4] {
@@ -21,19 +24,27 @@ fn matrix_to_array(mat: Mat4) -> [[f32; 4]; 4] {
 
 impl CameraState {
     pub fn new(screen_size: (i32, i32)) -> CameraState {
+        let mut zoom_tween = tween::Tween::new(0.2);
+        zoom_tween.start(0.2, 0.2);
         CameraState {
             screen_size: (screen_size.0 as f32, screen_size.1 as f32),
+            target_zoom: 0.2,
             position: glm::Vec3::new(0.5, 0.5, 0.2),
             fov: 75.0,
             near_plane: 0.001,
             far_plane: 10.0,
             dragging: false,
             last_drag_pos: (0.0, 0.0),
+            zoom_tween: zoom_tween,
         }
     }
 
-    pub fn scroll(&mut self, scroll : f32) {
-        self.position.z = glm::clamp_scalar(self.position.z * scroll, 0.01, 1.0);
+    pub fn scroll(&mut self, scroll: f32) {
+        if scroll != 0.0 {
+            self.target_zoom = glm::clamp_scalar(self.target_zoom * scroll, 0.01, 1.0);
+            self.zoom_tween.start(self.position.z, self.target_zoom)
+        }
+        self.position.z = self.zoom_tween.get(0.016);
     }
 
     pub fn get_perspective(&self) -> [[f32; 4]; 4] {
@@ -62,7 +73,7 @@ impl CameraState {
     }
 
     // Moves the map by dragging the mouse
-    pub fn update(&mut self, mouse_pos: (i32, i32), dragging: bool) {
+    pub fn drag(&mut self, mouse_pos: (i32, i32), dragging: bool) {
         if dragging {
             if !self.dragging
                 && mouse_pos.0 > 0
@@ -73,8 +84,7 @@ impl CameraState {
                 self.dragging = true;
                 self.last_drag_pos = self.get_map_pos(mouse_pos);
             }
-        }
-        else {
+        } else {
             self.dragging = false;
         }
         if self.dragging {

@@ -1,11 +1,14 @@
 use crate::common_traits::*;
 use fltk::{
-    app, button::Button, enums::*, frame::Frame, group::Pack, input::Input,
+    app, app::wait_for, button::Button, enums::*, frame::Frame, group::Pack, input::Input,
     output::MultilineOutput, prelude::*, window::Window, *,
 };
 
 use crate::s;
 use crate::ui_ext::file;
+
+use std::time::Instant;
+
 #[derive(Debug, Clone, Copy)]
 enum Message {
     Build,
@@ -103,14 +106,28 @@ pub fn run() {
 
     let mut builder = Builder::new();
 
-    while app.wait() {
-        if map.update() {
-            // Only draw the map only when it has changed
-            map.widget.redraw();
+    let secs_between_frames = 1. / 60.;
+    let mut last_time = Instant::now();
 
-            map.draw();
+    let mut scroll = 0;
+    loop {
+        let secs_elapsed = last_time.elapsed().as_secs_f64();
+        let secs_remaining = secs_between_frames - secs_elapsed;
+        match wait_for(f64::max(secs_remaining, 0.0)) {
+            Err(_) => app.run().unwrap_e("error making the main window"),
+            Ok(x) => match x {
+                false => {
+                    // There is no event, so just update and draw the map
+                    map.update(scroll);
+                    scroll = 0;
+                    map.draw();
+                    last_time = Instant::now();
+                    continue;
+                }
+                true => (),
+            },
         }
-      
+
 
         if let Some(msg) = r.recv() {
             match msg {
@@ -155,17 +172,17 @@ pub fn run() {
             }
         } else {
 
-            
+            if app::event() == Event::NoEvent || app::event() == Event::MouseWheel {
+                match app::event_dy() {
+                    app::MouseWheel::Up => scroll += 1,
+                    app::MouseWheel::Down => scroll -= 1,
+                    _ => (),
 
-            match app::event_key() {
-                Key::Up => {
-                    //map.map_context.unwrap().camera.set_position((0.,1.,1.));
                 }
-                Key::Down => {}
-                Key::Left => {}
-                Key::Right => {}
-
-                _ => {}
+                println!("TJA");
+            }
+            if app::event() == Event::Close {
+                return;
             }
         }
     }
