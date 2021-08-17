@@ -20,6 +20,7 @@ pub struct MapContext {
     vertex_buffer: Rc<glium::VertexBuffer<Vertex>>,
     index_buffer: Rc<glium::IndexBuffer<u16>>,
     texture: Rc<glium::texture::SrgbTexture2d>,
+    image: Rc<RefCell<image::RgbaImage>>,
 }
 
 pub struct Map {
@@ -92,9 +93,11 @@ impl Map {
         .unwrap()
         .to_rgba8();
         let image_dimensions = image.dimensions();
-        let image =
-            glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
-        let opengl_texture = glium::texture::SrgbTexture2d::new(&context, image).unwrap();
+        let opengl_texture = glium::texture::RawImage2d::from_raw_rgba_reversed(
+            &image.clone().into_raw(),
+            image_dimensions,
+        );
+        let opengl_texture = glium::texture::SrgbTexture2d::new(&context, opengl_texture).unwrap();
         let fs_code = std::fs::read_to_string("src/graphics/map_shader.fs").unwrap();
         let vs_code = std::fs::read_to_string("src/graphics/map_shader.vs").unwrap();
         let program = program!(&context,
@@ -140,11 +143,13 @@ impl Map {
             context: context,
             shader: Rc::new(program),
             texture: Rc::new(opengl_texture),
+            image: Rc::new(RefCell::new(image)),
         }));
         self.map_context = Some(map_context.clone());
 
         self.widget.handle({
             let camera = self.camera.clone();
+            let image = (*map_context).borrow_mut().image.clone();
             move |w, ev| match ev {
                 Event::Released => {
                     if app::event_mouse_button() == app::MouseButton::Middle {
@@ -158,12 +163,30 @@ impl Map {
                 }
                 Event::Push => {
                     if app::event_is_click()
-                        && app::event_mouse_button() == app::MouseButton::Middle
                     {
-                        let mouse_pos = app::event_coords();
-                        (*camera).borrow_mut().set_drag(mouse_pos, true);
-                        w.redraw();
-                        true
+                        match app::event_mouse_button() {
+                            app::MouseButton::Middle => {
+                                let mouse_pos = app::event_coords();
+                                (*camera).borrow_mut().set_drag(mouse_pos, true);
+                                w.redraw();
+                                true
+                            }
+                            app::MouseButton::Left => {
+                                let mouse_pos = app::event_coords();
+                                let map_pos = (*camera).borrow_mut().get_map_pos(mouse_pos);
+                                let image_data = (*image).borrow_mut();
+                                let image_size = image_data.dimensions();
+                                let pixel_pos = (
+                                    map_pos.0 / 2.0 * image_size.0 as f32,
+                                    map_pos.1 * image_size.1 as f32,
+                                );
+                                let pixel =
+                                    image_data.get_pixel(pixel_pos.0 as u32, pixel_pos.1 as u32);
+                                println!("{:?}", pixel);
+                                true
+                            }
+                            x => false,
+                        }
                     } else {
                         false
                     }
