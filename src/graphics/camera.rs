@@ -1,160 +1,129 @@
-pub struct CameraState {
-    aspect_ratio: f32,
-    position: (f32, f32, f32),
-    direction: (f32, f32, f32),
+use glm::*;
 
-    pub moving_up: bool,
-    pub moving_left: bool,
-    pub moving_down: bool,
-    pub moving_right: bool,
-    pub moving_forward: bool,
-    pub moving_backward: bool,
+pub struct CameraState {
+    position: Vec3,
+    screen_size: (f32, f32),
+    fov: f32,
+    near_plane: f32,
+    far_plane: f32,
+    dragging: bool,
+    last_drag_pos: (f32, f32),
+}
+
+fn matrix_to_array(mat: Mat4) -> [[f32; 4]; 4] {
+    [
+        [mat[0], mat[1], mat[2], mat[3]],
+        [mat[4], mat[5], mat[6], mat[7]],
+        [mat[8], mat[9], mat[10], mat[11]],
+        [mat[12], mat[13], mat[14], mat[15]],
+    ]
 }
 
 impl CameraState {
-    pub fn new() -> CameraState {
+    pub fn new(screen_size: (i32, i32)) -> CameraState {
         CameraState {
-            aspect_ratio: 1024.0 / 768.0,
-            position: (0.5, 0.75, 0.05),
-            direction: (0.0, 0.0, -1.0),
-            moving_up: false,
-            moving_left: false,
-            moving_down: false,
-            moving_right: false,
-            moving_forward: false,
-            moving_backward: false,
+            screen_size: (screen_size.0 as f32, screen_size.1 as f32),
+            position: glm::Vec3::new(0.5, 0.5, 0.2),
+            fov: 75.0,
+            near_plane: 0.001,
+            far_plane: 10.0,
+            dragging: false,
+            last_drag_pos: (0.0, 0.0),
         }
     }
 
-    pub fn set_position(&mut self, pos: (f32, f32, f32)) {
-        self.position = pos;
-    }
-
-    pub fn set_direction(&mut self, dir: (f32, f32, f32)) {
-        self.direction = dir;
+    pub fn scroll(&mut self, scroll : f32) {
+        self.position.z = glm::clamp_scalar(self.position.z * scroll, 0.01, 1.0);
     }
 
     pub fn get_perspective(&self) -> [[f32; 4]; 4] {
-        let fov: f32 = 3.141592 / 2.0;
-        let zfar = 1024.0;
-        let znear = 0.001;
-
-        let f = 1.0 / (fov / 2.0).tan();
-
-        // note: remember that this is column-major, so the lines of code are actually columns
-        [
-            [f / self.aspect_ratio, 0.0, 0.0, 0.0],
-            [0.0, f, 0.0, 0.0],
-            [0.0, 0.0, (zfar + znear) / (zfar - znear), 1.0],
-            [0.0, 0.0, -(2.0 * zfar * znear) / (zfar - znear), 0.0],
-        ]
+        return matrix_to_array(self.perspective());
     }
 
     pub fn get_view(&self) -> [[f32; 4]; 4] {
-        let f = {
-            let f = self.direction;
-            let len = f.0 * f.0 + f.1 * f.1 + f.2 * f.2;
-            let len = len.sqrt();
-            (f.0 / len, f.1 / len, f.2 / len)
-        };
-
-        let up = (0.0, 1.0, 0.0);
-
-        let s = (
-            f.1 * up.2 - f.2 * up.1,
-            f.2 * up.0 - f.0 * up.2,
-            f.0 * up.1 - f.1 * up.0,
-        );
-
-        let s_norm = {
-            let len = s.0 * s.0 + s.1 * s.1 + s.2 * s.2;
-            let len = len.sqrt();
-            (s.0 / len, s.1 / len, s.2 / len)
-        };
-
-        let u = (
-            s_norm.1 * f.2 - s_norm.2 * f.1,
-            s_norm.2 * f.0 - s_norm.0 * f.2,
-            s_norm.0 * f.1 - s_norm.1 * f.0,
-        );
-
-        let p = (
-            -self.position.0 * s.0 - self.position.1 * s.1 - self.position.2 * s.2,
-            -self.position.0 * u.0 - self.position.1 * u.1 - self.position.2 * u.2,
-            -self.position.0 * f.0 - self.position.1 * f.1 - self.position.2 * f.2,
-        );
-
-        // note: remember that this is column-major, so the lines of code are actually columns
-        [
-            [s_norm.0, u.0, f.0, 0.0],
-            [s_norm.1, u.1, f.1, 0.0],
-            [s_norm.2, u.2, f.2, 0.0],
-            [p.0, p.1, p.2, 1.0],
-        ]
+        return matrix_to_array(self.view());
     }
 
-    pub fn update(&mut self) {
-        let f = {
-            let f = self.direction;
-            let len = f.0 * f.0 + f.1 * f.1 + f.2 * f.2;
-            let len = len.sqrt();
-            (f.0 / len, f.1 / len, f.2 / len)
-        };
+    fn perspective(&self) -> glm::Mat4 {
+        let aspect_ratio = self.screen_size.0 / self.screen_size.1;
+        let fov_radians = self.fov * std::f32::consts::PI / 180.0;
+        return glm::perspective(aspect_ratio, fov_radians, self.near_plane, self.far_plane);
+    }
 
-        let up = (0.0, 1.0, 0.0);
+    fn view(&self) -> glm::Mat4 {
+        let mut look_at = self.position;
+        look_at.z = 0.0;
+        // Code to see map from the side
+        // if self.position.z < 1.0 {
+        //     look_at.y += 0.06 * (1.0 - self.position.z);
+        // }
+        let up_vector = glm::vec3(0.0, 1.0, 0.0);
+        return glm::look_at(&self.position, &look_at, &up_vector);
+    }
 
-        let s = (
-            f.1 * up.2 - f.2 * up.1,
-            f.2 * up.0 - f.0 * up.2,
-            f.0 * up.1 - f.1 * up.0,
-        );
-
-        let s = {
-            let len = s.0 * s.0 + s.1 * s.1 + s.2 * s.2;
-            let len = len.sqrt();
-            (s.0 / len, s.1 / len, s.2 / len)
-        };
-
-        let u = (
-            s.1 * f.2 - s.2 * f.1,
-            s.2 * f.0 - s.0 * f.2,
-            s.0 * f.1 - s.1 * f.0,
-        );
-
-        if self.moving_up {
-            self.position.0 += u.0 * 0.01;
-            self.position.1 += u.1 * 0.01;
-            self.position.2 += u.2 * 0.01;
+    // Moves the map by dragging the mouse
+    pub fn update(&mut self, mouse_pos: (i32, i32), dragging: bool) {
+        if dragging {
+            if !self.dragging
+                && mouse_pos.0 > 0
+                && mouse_pos.0 < self.screen_size.0 as i32
+                && mouse_pos.1 > 0
+                && mouse_pos.1 < self.screen_size.1 as i32
+            {
+                self.dragging = true;
+                self.last_drag_pos = self.get_map_pos(mouse_pos);
+            }
         }
-
-        if self.moving_left {
-            self.position.0 -= s.0 * 0.01;
-            self.position.1 -= s.1 * 0.01;
-            self.position.2 -= s.2 * 0.01;
+        else {
+            self.dragging = false;
         }
-
-        if self.moving_down {
-            self.position.0 -= u.0 * 0.01;
-            self.position.1 -= u.1 * 0.01;
-            self.position.2 -= u.2 * 0.01;
+        if self.dragging {
+            let map_pos = self.get_map_pos(mouse_pos);
+            self.position.x += self.last_drag_pos.0 - map_pos.0;
+            self.position.x = clamp_scalar(self.position.x, 0.0, 2.0);
+            self.position.y += self.last_drag_pos.1 - map_pos.1;
+            self.position.y = clamp_scalar(self.position.y, 0.0, 1.0);
         }
+    }
 
-        if self.moving_right {
-            self.position.0 += s.0 * 0.01;
-            self.position.1 += s.1 * 0.01;
-            self.position.2 += s.2 * 0.01;
-        }
+    // Gets the the world pos on the map plane
+    pub fn get_map_pos(&self, mouse_pos: (i32, i32)) -> (f32, f32) {
+        let view = self.view();
+        let perspective = self.perspective();
 
-        if self.moving_forward {
-            self.position.0 += f.0 * 0.01;
-            self.position.1 += f.1 * 0.01;
-            self.position.2 += f.2 * 0.01;
-        }
+        let mouse_x = mouse_pos.0 as f32;
+        let mouse_y = self.screen_size.1 - 1.0 - mouse_pos.1 as f32;
 
-        if self.moving_backward {
-            self.position.0 -= f.0 * 0.01;
-            self.position.1 -= f.1 * 0.01;
-            self.position.2 -= f.2 * 0.01;
+        let world_space_near = glm::unproject(
+            &glm::Vec3::new(mouse_x, mouse_y, 0.0),
+            &view,
+            &perspective,
+            glm::Vec4::new(0., 0., self.screen_size.0, self.screen_size.1),
+        ) as Vec3;
+
+        let world_space_far = glm::unproject(
+            &glm::Vec3::new(mouse_x, mouse_y, 1.0),
+            &view,
+            &perspective,
+            glm::vec4(0., 0., self.screen_size.0, self.screen_size.1),
+        ) as Vec3;
+
+        let ray_origin = world_space_near;
+        let ray_direction = glm::normalize(&(world_space_far - world_space_near));
+
+        let mut distance = 0.0;
+
+        let center = glm::Vec3::new(0., 0., 0.);
+        let normal = glm::Vec3::new(0., 0., 1.);
+        let denom = glm::dot(&normal, &ray_direction);
+        if f32::abs(denom) > 0.0001 {
+            let t = glm::dot(&(center - ray_origin), &normal) / denom;
+            if t >= 0.0 {
+                distance = t;
+            }
         }
+        let pos = ray_origin + ray_direction * distance;
+
+        return (pos.x, pos.y);
     }
 }

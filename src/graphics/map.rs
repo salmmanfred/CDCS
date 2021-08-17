@@ -1,6 +1,6 @@
 extern crate image;
 use super::camera;
-use fltk::{prelude::*, *};
+use fltk::{enums::*, prelude::*, *};
 use glium::index::PrimitiveType;
 use glium::Surface;
 use std::cell::RefCell;
@@ -16,7 +16,6 @@ struct Vertex {
 
 pub struct MapContext {
     context: std::rc::Rc<glium::backend::Context>,
-    pub camera: camera::CameraState,
     shader: glium::Program,
     vertex_buffer: glium::VertexBuffer<Vertex>,
     index_buffer: glium::IndexBuffer<u16>,
@@ -25,7 +24,8 @@ pub struct MapContext {
 
 pub struct Map {
     pub widget: window::GlutWindow,
-    pub map_context: Option<MapContext>,
+    camera: camera::CameraState,
+    map_context: Option<MapContext>,
 }
 
 impl Map {
@@ -37,6 +37,7 @@ impl Map {
         Map {
             widget: wind,
             map_context: None,
+            camera: camera::CameraState::new(size),
         }
     }
     // Must be called after window.show()
@@ -94,32 +95,12 @@ impl Map {
         let image =
             glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
         let opengl_texture = glium::texture::SrgbTexture2d::new(&context, image).unwrap();
+        let fs_code = std::fs::read_to_string("src/graphics/map_shader.fs").unwrap();
+        let vs_code = std::fs::read_to_string("src/graphics/map_shader.vs").unwrap();
         let program = program!(&context,
             140 => {
-                vertex: "
-                #version 140
-                uniform mat4 proj_matrix;
-                uniform mat4 view_matrix;
-                in vec2 position;
-                in vec2 tex_coord;
-
-                out vec2 v_tex_coord;
-                void main() {
-                    gl_Position = proj_matrix * view_matrix * vec4(position, 0.0, 1.0);
-                    v_tex_coord = tex_coord;
-                }
-            ",
-
-                fragment: "
-                #version 140
-                uniform sampler2D tex;
-                out vec4 f_color;
-                in vec2 v_tex_coord;
-
-                void main() {
-                    f_color = texture(tex, v_tex_coord);
-                }
-            "
+                vertex: &vs_code,
+                fragment: &fs_code,
             },
         )
         .unwrap();
@@ -138,11 +119,11 @@ impl Map {
                         tex_coord: [0.0, 1.0],
                     },
                     Vertex {
-                        position: [1.0, 0.0],
+                        position: [2.0, 0.0],
                         tex_coord: [1.0, 0.0],
                     },
                     Vertex {
-                        position: [1.0, 1.0],
+                        position: [2.0, 1.0],
                         tex_coord: [1.0, 1.0],
                     },
                 ],
@@ -154,13 +135,54 @@ impl Map {
                 .unwrap();
 
         self.map_context = Some(MapContext {
-            camera: camera::CameraState::new(),
             vertex_buffer: vertex_buffer,
             index_buffer: index_buffer,
             context: context,
             shader: program,
             texture: opengl_texture,
         });
+    }
+    pub fn update(&mut self) -> bool {
+        // FLTK fails to capture some event types over the map,
+        // so we have to use Event::NoEvent
+        let mut changed = false;
+
+        // Move map
+        let mouse_pos = app::event_coords();
+        if app::event_button() == app::MouseButton::Middle as i32 {
+            changed |= match app::event() {
+                Event::Released | Event::NoEvent => {
+                    self.camera.update(mouse_pos, false);
+                    true
+                }
+                Event::Drag => {
+                    self.camera.update(mouse_pos, true);
+                    true
+                }
+                _ => false,
+            }
+        }
+
+        // Check mouse scroll
+        if app::belowmouse::<window::GlutWindow>().is_some()
+            && app::belowmouse::<window::GlutWindow>()
+                .unwrap()
+                .is_same(&self.widget)
+            && app::event() == Event::NoEvent
+        {
+            changed |= match app::event_dy() {
+                app::MouseWheel::Up => {
+                    self.camera.scroll(1.1);
+                    true
+                }
+                app::MouseWheel::Down => {
+                    self.camera.scroll(0.9);
+                    true
+                }
+                _ => false,
+            }
+        }
+        return changed;
     }
     // Must be called after init_context()
     pub fn draw(&self) {
@@ -172,8 +194,8 @@ impl Map {
         let map_context = self.map_context.as_ref().unwrap();
         // building the uniforms
         let uniforms = uniform! {
-            proj_matrix: map_context.camera.get_perspective(),
-            view_matrix: map_context.camera.get_view(),
+            proj_matrix: self.camera.get_perspective(),
+            view_matrix: self.camera.get_view(),
             tex: map_context.texture.sampled().magnify_filter(glium::uniforms::MagnifySamplerFilter::Nearest),
         };
 

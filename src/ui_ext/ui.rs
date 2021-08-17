@@ -146,6 +146,12 @@ pub fn run() {
                 }
             }
         } else {
+
+            if map.update() {
+                // Only draw the map only when it has changed
+                map.draw();
+            }
+
             match app::event_key() {
                 Key::Up => {
                     //map.map_context.unwrap().camera.set_position((0.,1.,1.));
