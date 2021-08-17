@@ -15,17 +15,17 @@ struct Vertex {
 }
 
 pub struct MapContext {
-    context: std::rc::Rc<glium::backend::Context>,
-    shader: glium::Program,
-    vertex_buffer: glium::VertexBuffer<Vertex>,
-    index_buffer: glium::IndexBuffer<u16>,
-    texture: glium::texture::SrgbTexture2d,
+    context: Rc<glium::backend::Context>,
+    shader: Rc<glium::Program>,
+    vertex_buffer: Rc<glium::VertexBuffer<Vertex>>,
+    index_buffer: Rc<glium::IndexBuffer<u16>>,
+    texture: Rc<glium::texture::SrgbTexture2d>,
 }
 
 pub struct Map {
     pub widget: window::GlutWindow,
-    camera: camera::CameraState,
-    map_context: Option<MapContext>,
+    camera: Rc<RefCell<camera::CameraState>>,
+    map_context: Option<Rc<RefCell<MapContext>>>,
 }
 
 impl Map {
@@ -37,7 +37,7 @@ impl Map {
         Map {
             widget: wind,
             map_context: None,
-            camera: camera::CameraState::new(size),
+            camera: Rc::new(RefCell::new(camera::CameraState::new(size))),
         }
     }
     // Must be called after window.show()
@@ -134,86 +134,93 @@ impl Map {
             glium::IndexBuffer::new(&context, PrimitiveType::TriangleStrip, &[0u16, 1, 2, 3])
                 .unwrap();
 
-        self.map_context = Some(MapContext {
-            vertex_buffer: vertex_buffer,
-            index_buffer: index_buffer,
+        let map_context = Rc::new(RefCell::new(MapContext {
+            vertex_buffer: Rc::new(vertex_buffer),
+            index_buffer: Rc::new(index_buffer),
             context: context,
-            shader: program,
-            texture: opengl_texture,
-        });
-    }
-    pub fn update(&mut self) -> bool {
-        // FLTK fails to capture some event types over the map,
-        // so we have to use Event::NoEvent
-        let mut changed = false;
+            shader: Rc::new(program),
+            texture: Rc::new(opengl_texture),
+        }));
+        self.map_context = Some(map_context.clone());
 
-        // Move map
-        let mouse_pos = app::event_coords();
-        if app::event_button() == app::MouseButton::Middle as i32 {
-            changed |= match app::event() {
-                Event::Released | Event::NoEvent => {
-                    self.camera.update(mouse_pos, false);
-                    true
+        self.widget.handle({
+            let camera = self.camera.clone();
+            move |w, ev| match ev {
+                Event::Released => {
+                    if app::event_mouse_button() == app::MouseButton::Middle {
+                        let mouse_pos = app::event_coords();
+                        (*camera).borrow_mut().set_drag(mouse_pos, false);
+                        w.redraw();
+                        true
+                    } else {
+                        false
+                    }
+                }
+                Event::Push => {
+                    if app::event_is_click()
+                        && app::event_mouse_button() == app::MouseButton::Middle
+                    {
+                        let mouse_pos = app::event_coords();
+                        (*camera).borrow_mut().set_drag(mouse_pos, true);
+                        w.redraw();
+                        true
+                    } else {
+                        false
+                    }
                 }
                 Event::Drag => {
-                    self.camera.update(mouse_pos, true);
+                    let mouse_pos = app::event_coords();
+                    (*camera).borrow_mut().drag(mouse_pos);
+                    w.redraw();
                     true
                 }
+                Event::MouseWheel => match app::event_dy() {
+                    app::MouseWheel::Up => {
+                        (*camera).borrow_mut().scroll(1.1);
+                        w.redraw();
+                        true
+                    }
+                    app::MouseWheel::Down => {
+                        (*camera).borrow_mut().scroll(0.9);
+                        w.redraw();
+                        true
+                    }
+                    _ => false,
+                },
+
                 _ => false,
             }
-        }
+        });
+        self.widget.draw({
+			let context = map_context.clone();
+            let camera = self.camera.clone();
+			move |w| {
+                let context = (*context).borrow_mut();
+                let camera = (*camera).borrow_mut();
+                // building the uniforms
+                let uniforms = uniform! {
+                    proj_matrix: camera.get_perspective(),
+                    view_matrix: camera.get_view(),
+                    tex: context.texture.sampled().magnify_filter(glium::uniforms::MagnifySamplerFilter::Nearest),
+                };
 
-        // Check mouse scroll
-        if app::belowmouse::<window::GlutWindow>().is_some()
-            && app::belowmouse::<window::GlutWindow>()
-                .unwrap()
-                .is_same(&self.widget)
-            && app::event() == Event::NoEvent
-        {
-            changed |= match app::event_dy() {
-                app::MouseWheel::Up => {
-                    self.camera.scroll(1.1);
-                    true
-                }
-                app::MouseWheel::Down => {
-                    self.camera.scroll(0.9);
-                    true
-                }
-                _ => false,
+                let mut target = glium::Frame::new(
+                    context.context.clone(),
+                    context.context.get_framebuffer_dimensions(),
+                );
+                // drawing a frame
+                target.clear_color(0.0, 0.0, 1.0, 1.0);
+                target
+                    .draw(
+                        &*context.vertex_buffer,
+                        &*context.index_buffer,
+                        &*context.shader,
+                        &uniforms,
+                        &Default::default(),
+                    )
+                    .unwrap();
+                target.finish().unwrap();
             }
-        }
-        return changed;
-    }
-    // Must be called after init_context()
-    pub fn draw(&self) {
-        match self.map_context {
-            None => panic!("Map.draw() was called before Map.init_context()"),
-            _ => (),
-        };
-
-        let map_context = self.map_context.as_ref().unwrap();
-        // building the uniforms
-        let uniforms = uniform! {
-            proj_matrix: self.camera.get_perspective(),
-            view_matrix: self.camera.get_view(),
-            tex: map_context.texture.sampled().magnify_filter(glium::uniforms::MagnifySamplerFilter::Nearest),
-        };
-
-        let mut target = glium::Frame::new(
-            map_context.context.clone(),
-            map_context.context.get_framebuffer_dimensions(),
-        );
-        // drawing a frame
-        target.clear_color(0.0, 0.0, 1.0, 1.0);
-        target
-            .draw(
-                &map_context.vertex_buffer,
-                &map_context.index_buffer,
-                &map_context.shader,
-                &uniforms,
-                &Default::default(),
-            )
-            .unwrap();
-        target.finish().unwrap();
+        });
     }
 }

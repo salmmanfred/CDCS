@@ -32,7 +32,7 @@ impl CameraState {
         }
     }
 
-    pub fn scroll(&mut self, scroll : f32) {
+    pub fn scroll(&mut self, scroll: f32) {
         self.position.z = glm::clamp_scalar(self.position.z * scroll, 0.01, 1.0);
     }
 
@@ -61,22 +61,17 @@ impl CameraState {
         return glm::look_at(&self.position, &look_at, &up_vector);
     }
 
-    // Moves the map by dragging the mouse
-    pub fn update(&mut self, mouse_pos: (i32, i32), dragging: bool) {
+    pub fn set_drag(&mut self, mouse_pos: (i32, i32), dragging: bool) {
         if dragging {
-            if !self.dragging
-                && mouse_pos.0 > 0
-                && mouse_pos.0 < self.screen_size.0 as i32
-                && mouse_pos.1 > 0
-                && mouse_pos.1 < self.screen_size.1 as i32
-            {
-                self.dragging = true;
-                self.last_drag_pos = self.get_map_pos(mouse_pos);
-            }
-        }
-        else {
+            self.dragging = true;
+            self.last_drag_pos = self.get_map_pos(mouse_pos);
+        } else {
             self.dragging = false;
         }
+    }
+
+    // Moves the map by dragging the mouse
+    pub fn drag(&mut self, mouse_pos: (i32, i32)) {
         if self.dragging {
             let map_pos = self.get_map_pos(mouse_pos);
             self.position.x += self.last_drag_pos.0 - map_pos.0;

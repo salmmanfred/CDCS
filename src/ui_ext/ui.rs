@@ -93,7 +93,7 @@ pub fn run() {
     wind.end();
     wind.show();
     map.init_context();
-    map.draw();
+    // map.draw();
 
     let (s, r) = app::channel::<Message>();
 
@@ -147,10 +147,10 @@ pub fn run() {
             }
         } else {
 
-            if map.update() {
-                // Only draw the map only when it has changed
-                map.draw();
-            }
+            // if map.update() {
+            //     // Only draw the map only when it has changed
+            //     map.draw();
+            // }
 
             match app::event_key() {
                 Key::Up => {
