@@ -4,7 +4,7 @@ version = 3
 
 [[package]]
 name = "CDCS"
-version = "2.0.0-alpha-1"
+version = "2.0.0-alpha-3"
 dependencies = [
  "fltk",
  "glium",
