@@ -7,7 +7,7 @@ use std::cell::RefCell;
 use std::io::Cursor;
 use std::os::raw::c_void;
 use std::rc::Rc;
-
+use crate::{s, o};
 #[derive(Copy, Clone)]
 struct Vertex {
     position: [f32; 2],
@@ -98,8 +98,8 @@ impl Map {
             image_dimensions,
         );
         let opengl_texture = glium::texture::SrgbTexture2d::new(&context, opengl_texture).unwrap();
-        let fs_code = std::fs::read_to_string("src/graphics/map_shader.fs").unwrap();
-        let vs_code = std::fs::read_to_string("src/graphics/map_shader.vs").unwrap();
+        let fs_code = s!(include_str!("map_shader.fs"));
+        let vs_code = s!(include_str!("map_shader.vs"));
         let program = program!(&context,
             140 => {
                 vertex: &vs_code,
