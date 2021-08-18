@@ -102,9 +102,9 @@ fn settings_pop(st: &mut Settings) {
                 Message::Reload => {
                     if !st.warn || ask::ask("Are you sure?") {
                         app.quit();
-                        let _ = Box::new(ui::run());
+                        Box::new(ui::run());
 
-                        panic!("shut down");
+                       
                     }
                 }
             }
