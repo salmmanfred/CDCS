@@ -2,16 +2,17 @@
 
 ## [2.0.0-alpha-3] - 2021-08-18
 
+### Big change
+
+- Remaking the ui and other small fixes
+ ([7bfdbc2](7bfdbc2a72ab7f80e5eeea2d9d7c65e09ce7356d))
+
 ### Bug Fixes
 
 - Ui changes that changes the buttons text
  ([c0a46a0](c0a46a0aab2341f8bacab04d420d13e452b63420))
-- Remaking the ui and other small fixes
- ([7bfdbc2](7bfdbc2a72ab7f80e5eeea2d9d7c65e09ce7356d))
 - Fixed weird bug
  ([11b0e95](11b0e95e89aa2b55eb229d8b669a3705f400e56f))
-- New prompt ask and also fix note
- ([bcc91f1](bcc91f1cdbef7aaf627b82944d5d96f70d585fee))
 - Small changes
  ([711b4c7](711b4c72234d49c42e9b35e1567d80506561c766))
 - Small changes
@@ -32,4 +33,6 @@ Map fixes ([f2c6611](f2c6611122c147e038504f38528f016f55ca39c1))
 
 - Implementing the new error system
  ([31e33b8](31e33b8c115bbc5ce81dd49fc6d124d650ead6ea))
+- New prompt ask and also fix note
+ ([bcc91f1](bcc91f1cdbef7aaf627b82944d5d96f70d585fee))
 

@@ -39,12 +39,13 @@ footer = """
 conventional_commits = false
 # regex for parsing and grouping commits
 commit_parsers = [
+    { message = "new.*", group = "New Feature"},
+    { message = "Remak.*", group = "Big change"},
     { message = "feat.*", group = "Features"},
     { message = "fix.*", group = "Bug Fixes"},
     { message = "bug.*", group = "Bug Fixes"},
     { message = "changes.*", group = "Bug Fixes"},
     { message = "merge.*", group = "Merge"},
-    { message = "new.*", group = "New Feature"},
     { message = "doc.*", group = "Documentation"},
     { message = "perf.*", group = "Performance"},
     { message = "refactor.*", group = "Refactor"},
