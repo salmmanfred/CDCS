@@ -76,23 +76,18 @@ pub trait Write {
 impl Write for String {
     fn write_file(&self, path: &str, st: Settings) {
         let text = self.as_str();
-        if !Path::new(path).exists() {
+
+        if !Path::new(path).exists()
+            || !st.warn
+            || ask::ask(&format!(
+                "the file {} already exists do you want to over write it?",
+                path
+            ))
+        {
             openfile::write_file(path, text).unwrap_e("Error writing your file");
             return ();
-        } else {
-            if st.warn {
-                if ask::ask(&format!(
-                    "the file {} already exists do you want to over write it?",
-                    path
-                )) {
-                    openfile::write_file(path, text).unwrap_e("Error writing your file");
-                    return ();
-                }
-            } else {
-                openfile::write_file(path, text).unwrap_e("Error writing your file");
-                return ();
-            }
         }
+
         println!("did not write file");
     }
 }
@@ -110,14 +105,12 @@ impl Settings {
         if Path::new(SAVE_FILE).exists() {
             let json = openfile::read_file(SAVE_FILE);
             let x = json!(json);
-            
 
             return Some(serde_json::from_str(&json).unwrap_e("failed to read error"));
             /*Settings{
                 warn: x["warn"].to_string().parse::<bool>().unwrap_e("failed to read settings: warn"),
             })*/
         }
-      
 
         None
     }

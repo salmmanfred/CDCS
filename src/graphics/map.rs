@@ -162,8 +162,7 @@ impl Map {
                     }
                 }
                 Event::Push => {
-                    if app::event_is_click()
-                    {
+                    if app::event_is_click() {
                         match app::event_mouse_button() {
                             app::MouseButton::Middle => {
                                 let mouse_pos = app::event_coords();

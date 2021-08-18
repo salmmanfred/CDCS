@@ -103,8 +103,6 @@ fn settings_pop(st: &mut Settings) {
                     if !st.warn || ask::ask("Are you sure?") {
                         app.quit();
                         Box::new(ui::run());
-
-                       
                     }
                 }
             }
