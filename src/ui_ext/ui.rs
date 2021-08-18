@@ -96,7 +96,6 @@ pub fn run() {
     wind.end();
     wind.show();
     map.init_context();
-    map.draw();
 
     let (s, r) = app::channel::<Message>();
 
@@ -106,29 +105,7 @@ pub fn run() {
 
     let mut builder = Builder::new();
 
-    let secs_between_frames = 1. / 60.;
-    let mut last_time = Instant::now();
-
-    let mut scroll = 0;
-    loop {
-        let secs_elapsed = last_time.elapsed().as_secs_f64();
-        let secs_remaining = secs_between_frames - secs_elapsed;
-        match wait_for(f64::max(secs_remaining, 0.0)) {
-            Err(_) => app.run().unwrap_e("error making the main window"),
-            Ok(x) => match x {
-                false => {
-                    // There is no event, so just update and draw the map
-                    map.update(scroll);
-                    scroll = 0;
-                    map.draw();
-                    last_time = Instant::now();
-                    continue;
-                }
-                true => (),
-            },
-        }
-
-
+    while app.wait() {
         if let Some(msg) = r.recv() {
             match msg {
                 Message::Build => {
@@ -171,19 +148,6 @@ pub fn run() {
                 }
             }
         } else {
-
-            if app::event() == Event::NoEvent || app::event() == Event::MouseWheel {
-                match app::event_dy() {
-                    app::MouseWheel::Up => scroll += 1,
-                    app::MouseWheel::Down => scroll -= 1,
-                    _ => (),
-
-                }
-                println!("TJA");
-            }
-            if app::event() == Event::Close {
-                return;
-            }
         }
     }
     app.run().unwrap_e("error making the main window");
