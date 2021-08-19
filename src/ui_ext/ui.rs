@@ -6,8 +6,7 @@ use fltk::{
 
 use crate::s;
 use crate::ui_ext::file;
-
-use std::time::Instant;
+use std::time::Duration;
 
 #[derive(Debug, Clone, Copy)]
 enum Message {
@@ -101,7 +100,7 @@ pub fn run() {
 
     build.emit(s, Message::Build);
     menu.emit(s, Message::File);
-    settings.emit(s, Message::Settings);
+    settings.emit(s.clone(), Message::Settings);
 
     let mut builder = Builder::new();
 
@@ -148,6 +147,12 @@ pub fn run() {
                 }
             }
         } else {
+            match map.msg.recv_timeout(Duration::from_nanos(1)) {
+                Ok(pix) => {
+                    println!("r:{}, g:{}, b:{}", pix.0, pix.1, pix.2)
+                }
+                Err(_) => (),
+            }
         }
     }
     app.run().unwrap_e("error making the main window");

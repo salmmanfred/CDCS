@@ -1,5 +1,7 @@
 extern crate image;
 use super::camera;
+use crate::ui_ext;
+use crate::{o, s};
 use fltk::{enums::*, prelude::*, *};
 use glium::index::PrimitiveType;
 use glium::Surface;
@@ -7,7 +9,7 @@ use std::cell::RefCell;
 use std::io::Cursor;
 use std::os::raw::c_void;
 use std::rc::Rc;
-use crate::{s, o};
+use std::sync::mpsc;
 #[derive(Copy, Clone)]
 struct Vertex {
     position: [f32; 2],
@@ -24,9 +26,11 @@ pub struct MapContext {
 }
 
 pub struct Map {
-    pub widget: window::GlutWindow,
+    widget: window::GlutWindow,
     camera: Rc<RefCell<camera::CameraState>>,
     map_context: Option<Rc<RefCell<MapContext>>>,
+    pub msg: mpsc::Receiver<(u8, u8, u8)>,
+    sender: mpsc::Sender<(u8, u8, u8)>,
 }
 
 impl Map {
@@ -34,11 +38,14 @@ impl Map {
         let mut wind = window::GlutWindow::new(0, 0, size.0, size.1, "");
         wind.end();
         wind.set_mode(enums::Mode::Opengl3);
+        let (s, r) = mpsc::channel::<(u8, u8, u8)>();
 
         Map {
             widget: wind,
             map_context: None,
             camera: Rc::new(RefCell::new(camera::CameraState::new(size))),
+            msg: r,
+            sender: s,
         }
     }
     // Must be called after window.show()
@@ -150,6 +157,7 @@ impl Map {
         self.widget.handle({
             let camera = self.camera.clone();
             let image = (*map_context).borrow_mut().image.clone();
+            let sender = self.sender.clone();
             move |w, ev| match ev {
                 Event::Released => {
                     if app::event_mouse_button() == app::MouseButton::Middle {
@@ -177,12 +185,14 @@ impl Map {
                                 let image_size = image_data.dimensions();
                                 let pixel_pos = (
                                     map_pos.0 / 2.0 * image_size.0 as f32,
-                                    map_pos.1 * image_size.1 as f32,
+                                    (1. - map_pos.1) * image_size.1 as f32,
                                 );
+
                                 let pixel =
                                     image_data.get_pixel(pixel_pos.0 as u32, pixel_pos.1 as u32);
-                                println!("{:?}", pixel);
-                                true
+
+                                sender.send((pixel[0], pixel[1], pixel[2])).unwrap();
+                                false
                             }
                             x => false,
                         }
