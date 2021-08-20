@@ -15,6 +15,7 @@ use std::error::Error;
 #[macro_use]
 use serde;
 mod ui_ext;
+mod provinces;
 #[allow(unused_imports)]
 use crate::ui_ext::popups::{ask, err, note};
 

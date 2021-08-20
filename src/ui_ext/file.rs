@@ -1,4 +1,5 @@
 use std::fs;
+use crate::common_traits::*;
 
 pub fn get_files() -> String {
     /*
@@ -12,7 +13,7 @@ pub fn get_files() -> String {
     let mut list: Vec<String> = Vec::new();
     let mut list2: Vec<String> = Vec::new();
 
-    for entry in fs::read_dir("./".to_string()).expect("Error reading folder") {
+    for entry in fs::read_dir("./".to_string()).unwrap_e("Error reading folder") {
         // parses the folder into a folder struct
         /*
         gets the folder and its contents and then splits up it into <name of file> and <File extension>
