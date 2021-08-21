@@ -7,44 +7,37 @@ use crate::{o, s};
 use fltk::{
     app::{self, Receiver, Sender},
     button::Button,
+    enums::*,
     frame::Frame,
+    input::Input,
     prelude::*,
     window::Window,
-    input::Input,
 };
-
-#[derive(Debug, Clone)]
-enum Message {
-    Close,
-    Name,
-}
-
-pub fn prov_register(str: &str) {
-    let l = provr(str);
-    println!("l{}l",l);
-
-    //rt();
-}
 
 const WIND_WID: i32 = 200;
 const WIND_HI: i32 = 160;
 
-const TEXT_WID: i32 = 100;
+const TEXT_WID: i32 = 180;
 
 const BUTTON_WID: i32 = 120;
 const BUTTON_HI: i32 = 40;
 
-fn provr(str: &str) -> String {
-    //  let app = app::App::default().with_scheme(app::Scheme::Gtk);
+pub fn prov_register(color: u32) -> Option<String> {
+    let app = app::App::default().with_scheme(app::Scheme::Gtk);
     let mut wind = Window::default()
         .with_size(WIND_WID, WIND_HI)
         .with_label("Note");
-    //format!("Error happen: {}",
+
+    let pos_x = (WIND_WID - TEXT_WID) / 2;
+    let color_str = format!("{:#06x}", color);
     let mut a = Frame::default()
-        .with_size(TEXT_WID, 100)
-        .with_label(&str.format_note(TEXT_WID, 4));
-    a.set_pos((WIND_WID - TEXT_WID) / 2, 10);
-    let name = Input::default().with_size(20, 40).with_label("-");
+        .with_size(TEXT_WID, 50)
+        .with_label(&color_str.format_note(TEXT_WID, 4));
+    a.set_pos(pos_x, 10);
+    let mut color_box = Frame::new(TEXT_WID / 2 + 50, 25, 20, 20, "");
+    color_box.set_color(Color::from_u32(color));
+    color_box.set_frame(FrameType::FlatBox);
+    let mut name = Input::new(pos_x, 50, TEXT_WID, 40, "");
 
     let mut ok = Button::default()
         .with_size(BUTTON_WID, BUTTON_HI)
@@ -52,25 +45,24 @@ fn provr(str: &str) -> String {
     ok.set_pos((WIND_WID - BUTTON_WID) / 2, WIND_HI - BUTTON_HI - 2);
 
     wind.end();
-    //wind.show();
-    wind.show();
-    let (s, r) = app::channel::<Message>();
-    ok.emit(s, Message::Name);
+    let (s, r) = app::channel::<bool>();
+    ok.emit(s, true);
 
-    while wind.shown(){
-        if let Some(msg) = r.recv() {
-            match msg {
-                Message::Close => {
-                    wind.hide();
-                }
-                Message::Name =>{
-                    return name.value()
-                }
-            }
+    // Ok on pressing enter
+    name.set_trigger(CallbackTrigger::EnterKey);
+    name.set_callback({
+        move |_| {
+            s.send(true);
         }
-    }
-    panic!("What");
+    });
 
-    //app.run().unwrap_e("Error making the note window");
-  
+    wind.show();
+    while wind.shown() {
+        if r.recv().is_some() {
+            wind.hide();
+            return Some(name.value());
+        }
+        app::wait();
+    }
+    return None;
 }

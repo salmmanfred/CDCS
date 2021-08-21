@@ -26,7 +26,7 @@ pub struct MapContext {
 }
 
 pub struct Map {
-    widget: window::GlutWindow,
+    pub widget: window::GlutWindow,
     camera: Rc<RefCell<camera::CameraState>>,
     map_context: Option<Rc<RefCell<MapContext>>>,
     pub msg: mpsc::Receiver<(u8, u8, u8)>,
@@ -181,12 +181,21 @@ impl Map {
                             app::MouseButton::Left => {
                                 let mouse_pos = app::event_coords();
                                 let map_pos = (*camera).borrow_mut().get_map_pos(mouse_pos);
+                                if map_pos.0 < 0.0
+                                    || map_pos.0 > 2.0
+                                    || map_pos.1 < 0.0
+                                    || map_pos.1 > 1.0
+                                {
+                                   return false; 
+                                }
+
                                 let image_data = (*image).borrow_mut();
                                 let image_size = image_data.dimensions();
                                 let pixel_pos = (
                                     map_pos.0 / 2.0 * image_size.0 as f32,
                                     (1. - map_pos.1) * image_size.1 as f32,
                                 );
+                                println!("{:?}", map_pos);
 
                                 let pixel =
                                     image_data.get_pixel(pixel_pos.0 as u32, pixel_pos.1 as u32);
@@ -194,7 +203,7 @@ impl Map {
                                 sender.send((pixel[0], pixel[1], pixel[2])).unwrap();
                                 false
                             }
-                            x => false,
+                            _ => false,
                         }
                     } else {
                         false
