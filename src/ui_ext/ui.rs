@@ -6,6 +6,8 @@ use fltk::{
 
 use crate::s;
 use crate::ui_ext::file;
+use crate::ui_ext::popups::provr;
+use crate::provinces;
 use std::time::Duration;
 
 #[derive(Debug, Clone, Copy)]
@@ -104,6 +106,8 @@ pub fn run() {
 
     let mut builder = Builder::new();
 
+    let mut provinces = provinces::prov::new();
+
     while app.wait() {
         if let Some(msg) = r.recv() {
             match msg {
@@ -149,7 +153,16 @@ pub fn run() {
         } else {
             match map.msg.recv_timeout(Duration::from_nanos(1)) {
                 Ok(pix) => {
-                    println!("r:{}, g:{}, b:{}", pix.0, pix.1, pix.2)
+                    let color = (pix.0 as u32) * 256 * 256 + (pix.1 as u32) * 256 + pix.2 as u32;
+                    wind.deactivate();
+                    map.widget.deactivate();
+                    match provr::prov_register(color) {
+                        Some(name) => provinces.add(color, name),
+                        None => (),
+                    }
+                    wind.activate();
+                    map.widget.activate();
+                    println!("{:?}", provinces.provinces);
                 }
                 Err(_) => (),
             }
