@@ -21,6 +21,7 @@ use fltk::{
 enum Message {
     Save,
     ChangeWarn,
+    ChangeDebug,
     Reload,
 }
 
@@ -64,6 +65,10 @@ fn settings_pop(st: &mut Settings) {
         .with_size(BUTTON_WID, BUTTON_HI)
         .with_label("Warn: True");
     op1.set_pos(0, (WIND_HI - BUTTON_HI - 2) - BUTTON_HI);
+    let mut op2 = Button::default()
+        .with_size(BUTTON_WID, BUTTON_HI)
+        .with_label("Debug: False");
+    op2.set_pos(BUTTON_WID, (WIND_HI - BUTTON_HI - 2) - BUTTON_HI);
     //(WIND_WID - BUTTON_WID) /
     wind.end();
     //wind.show();
@@ -74,9 +79,13 @@ fn settings_pop(st: &mut Settings) {
     let (s, r) = app::channel::<Message>();
     save.emit(s.clone(), Message::Save);
     op1.emit(s.clone(), Message::ChangeWarn);
+    op2.emit(s.clone(), Message::ChangeDebug);
+
     reload.emit(s.clone(), Message::Reload);
 
     &op1.set_label(&format!("Warn: {}", st.warn));
+    &op2.set_label(&format!("Debug: {}", st.debug));
+
 
     wind.show();
 
@@ -97,6 +106,16 @@ fn settings_pop(st: &mut Settings) {
                     } else {
                         &op1.set_label("Warn: True");
                         st.warn = true;
+                    }
+                }
+                Message::ChangeDebug => {
+                    // wind.hide();
+                    if st.debug {
+                        &op2.set_label("Debug: False");
+                        st.debug = false;
+                    } else {
+                        &op2.set_label("Debug: True");
+                        st.debug = true;
                     }
                 }
                 Message::Reload => {

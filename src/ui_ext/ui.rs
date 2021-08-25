@@ -160,6 +160,7 @@ pub fn run() {
                         Some(name) => provinces.add(color, name),
                         None => (),
                     }
+                    provinces.save();
                     wind.activate();
                     map.widget.activate();
                     println!("{:?}", provinces.provinces);

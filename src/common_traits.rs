@@ -96,10 +96,11 @@ use serde_derive::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Settings {
     pub warn: bool,
+    pub debug: bool,
 }
 impl Settings {
     pub fn new() -> Settings {
-        Settings { warn: true }
+        Settings { warn: true, debug: false}
     }
     pub fn load() -> Option<Settings> {
         if Path::new(SAVE_FILE).exists() {
