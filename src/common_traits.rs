@@ -100,7 +100,10 @@ pub struct Settings {
 }
 impl Settings {
     pub fn new() -> Settings {
-        Settings { warn: true, debug: false}
+        Settings {
+            warn: true,
+            debug: false,
+        }
     }
     pub fn load() -> Option<Settings> {
         if Path::new(SAVE_FILE).exists() {

@@ -1,7 +1,7 @@
 use crate::ui_ext::popups::ask;
 use crate::ui_ext::popups::note;
-use std::collections::HashMap;
 use serde_derive::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::path::Path;
 
 use crate::common_traits::*;
@@ -13,9 +13,7 @@ pub struct prov {
     provinces_reverse: HashMap<String, u32>,
 }
 impl prov {
-    
-    pub fn new()->Self{
-
+    pub fn new() -> Self {
         if Path::new(SAVE_FILE).exists() {
             let x: Self = serde_json::from_str(&openfile::read_file(SAVE_FILE)).unwrap_e("err");
             return x;
@@ -45,13 +43,14 @@ impl prov {
             self.provinces_reverse.insert(name, color);
         }
     }
-    pub fn save(&mut self){
-        openfile::write_file(SAVE_FILE, &serde_json::to_string(&self).unwrap_e("err")).unwrap_e("err");
+    pub fn save(&mut self) {
+        openfile::write_file(SAVE_FILE, &serde_json::to_string(&self).unwrap_e("err"))
+            .unwrap_e("err");
     }
-    pub fn exists(&self, colour: u32)->bool{
+    pub fn exists(&self, colour: u32) -> bool {
         match self.provinces.get(&colour) {
-            Some(_) => true,//return (),
-            _ => false
+            Some(_) => true, //return (),
+            _ => false,
         }
     }
 }

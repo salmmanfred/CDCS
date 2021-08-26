@@ -1,13 +1,14 @@
 use crate::common_traits::*;
+use crate::ui_ext::popups::{ask, err, note};
 use fltk::{
     app, app::wait_for, button::Button, enums::*, frame::Frame, group::Pack, input::Input,
     output::MultilineOutput, prelude::*, window::Window, *,
 };
 
+use crate::provinces;
 use crate::s;
 use crate::ui_ext::file;
 use crate::ui_ext::popups::provr;
-use crate::provinces;
 use std::time::Duration;
 
 #[derive(Debug, Clone, Copy)]
@@ -156,9 +157,12 @@ pub fn run() {
                     let color = (pix.0 as u32) * 256 * 256 + (pix.1 as u32) * 256 + pix.2 as u32;
                     wind.deactivate();
                     map.widget.deactivate();
-                    match provr::prov_register(color) {
-                        Some(name) => provinces.add(color, name),
-                        None => (),
+                    match settings_head.debug {
+                        false => if ask::ask("Do you want to use it?") {},
+                        true => match provr::prov_register(color) {
+                            Some(name) => provinces.add(color, name),
+                            None => (),
+                        },
                     }
                     provinces.save();
                     wind.activate();

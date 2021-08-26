@@ -86,7 +86,6 @@ fn settings_pop(st: &mut Settings) {
     &op1.set_label(&format!("Warn: {}", st.warn));
     &op2.set_label(&format!("Debug: {}", st.debug));
 
-
     wind.show();
 
     while wind.shown() {

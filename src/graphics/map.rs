@@ -186,7 +186,7 @@ impl Map {
                                     || map_pos.1 < 0.0
                                     || map_pos.1 > 1.0
                                 {
-                                   return false; 
+                                    return false;
                                 }
 
                                 let image_data = (*image).borrow_mut();

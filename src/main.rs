@@ -14,8 +14,8 @@ use std::collections::HashMap;
 use std::error::Error;
 #[macro_use]
 use serde;
-mod ui_ext;
 mod provinces;
+mod ui_ext;
 #[allow(unused_imports)]
 use crate::ui_ext::popups::{ask, err, note};
 

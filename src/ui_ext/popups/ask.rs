@@ -45,7 +45,7 @@ pub fn ask(str: &str) -> bool {
         }
     }
 
-    err::error("how");
+    //err::error("how");
     false
 
     //false
