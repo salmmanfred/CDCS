@@ -106,6 +106,7 @@ impl Settings {
         }
     }
     pub fn load() -> Option<Settings> {
+        // check if save_file exists and if not returns none otherwise the settings struct 
         if Path::new(SAVE_FILE).exists() {
             let json = openfile::read_file(SAVE_FILE);
             let x = json!(json);
@@ -119,13 +120,18 @@ impl Settings {
         None
     }
     pub fn save(&self) {
+
+        // writes the save file as json thanks to serde_json Deserialize funtion
+        // it can later read this if the settings struct has not changed
         openfile::write_file(
             SAVE_FILE,
             &serde_json::to_string(self).unwrap_e("failed to create json"),
         )
+        // and uhh yeah 
         .unwrap_e("fucked up saving your settings sorry");
     }
     pub fn change(&mut self) {
+        // starts the settings in ui_ext/popups/settings.rs
         settings::settings(self);
     }
 }

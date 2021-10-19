@@ -21,23 +21,21 @@ pub trait FormatNote {
     fn format_note(&self, wid: i32, font: i32) -> String;
 }
 impl FormatNote for str {
+    /*
+    Format note takes a max width size and a font size and formats a str to
+    a string but with the correct places for \n
 
-/*
-Format note takes a max width size and a font size and formats a str to 
-a string but with the correct places for \n 
 
-
-*/
+    */
 
     fn format_note(&self, wid: i32, font: i32) -> String {
-
         // here it takes the given wdith and devides it by the font size to be able get the "real"
         // width
         let wid = wid / font;
-        
-        //V is the vector holding vectors of chars 
+
+        //V is the vector holding vectors of chars
         // these vectors are the split up "words" and it holds them where there should be a \n
-        // so if you have the str "test in the sky with a plane" it splits at "sky " for example 
+        // so if you have the str "test in the sky with a plane" it splits at "sky " for example
         // then it loads the first part "test in the sky" in to V[0] and the rest in V[1]
         let mut v: Vec<Vec<char>> = Vec::new();
         let mut mess = self.chars().collect::<Vec<char>>();
@@ -48,10 +46,10 @@ a string but with the correct places for \n
 
             if mess.len() >= wid as usize {
                 /*
-                it takes the split value which should be the width 
-                but if the split value is in the middle of a word 
+                it takes the split value which should be the width
+                but if the split value is in the middle of a word
                 it splits at the closest space.
-                
+
                 */
                 let mut split = wid as usize;
                 while mess[split - 1] != ' ' {
@@ -67,14 +65,14 @@ a string but with the correct places for \n
                 mess = mess[split..mess.len()].to_vec();
             }
         }
-        // if the string is more than 1 char and less than width it just pushes it to v and 
+        // if the string is more than 1 char and less than width it just pushes it to v and
         // calls it a day
         if mess.len() >= 1 && mess.len() <= wid as usize {
             let mut x = mess[0..mess.len()].to_vec();
             x.push('\n');
             v.push(x);
         }
-        // crates a string using the s!("") macro and then collects the V vector into it 
+        // crates a string using the s!("") macro and then collects the V vector into it
         let mut string = s!("");
         for x in v {
             string.push_str(&x.iter().collect::<String>())
