@@ -1,3 +1,10 @@
+/*
+the point of this file is to get the provinces from the map.json file that should be genereated by the
+SOE game itself
+
+*/
+
+
 use crate::ui_ext::popups::ask;
 use crate::ui_ext::popups::note;
 use serde_derive::{Deserialize, Serialize};
@@ -7,6 +14,9 @@ use std::path::Path;
 use crate::common_traits::*;
 
 const SAVE_FILE: &str = "map.json";
+
+
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct prov {
     pub provinces: HashMap<u32, String>,

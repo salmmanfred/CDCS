@@ -1,3 +1,11 @@
+/*
+The point of this file is to house common traits. 
+this is so you can easily import it to all files
+
+*/
+
+
+
 use crate::ui_ext::popups::{ask, err, note, settings};
 use openfile;
 use serde_json::json;
@@ -18,6 +26,14 @@ impl fmt::Display for ErrorMsg {
 
 impl std::error::Error for ErrorMsg {}
 
+
+
+
+/*
+UnwrapA is a trait for result and option 
+what it does is very simple instead of shutting down the entire app 
+it opens a window telling you the error otherwise it just returns the data
+*/
 pub trait UnwrapA<T> {
     fn unwrap_e(self, err_mes: &str) -> T;
 }
@@ -45,6 +61,12 @@ impl<T> UnwrapA<T> for Option<T> {
     }
 }
 
+/*
+same as unwrapA but this shows a note instead of an error that then closes the screen
+this also only returns a bool
+
+*/
+
 pub trait UnwrapN {
     fn unwrap_n(self, err_mes: &'static str) -> bool;
 }
@@ -70,13 +92,26 @@ impl<T> UnwrapN for Option<T> {
         }
     }
 }
+
+/*
+
+write is a simple trait for String 
+that does something very simple.
+it takes the string data and saves it to a file
+however if the file exists it shows a confermation screen.
+*/
 pub trait Write {
     fn write_file(&self, path: &str, st: Settings);
 }
 impl Write for String {
     fn write_file(&self, path: &str, st: Settings) {
         let text = self.as_str();
-
+        /*
+        checks the path given.
+        if it exists it will open an ask window(ui_ext/popups/ask.rs)
+        if the person then accepts it will re write the file.
+        if the person does not care about warnings it will simply skip this check.
+        */
         if !Path::new(path).exists()
             || !st.warn
             || ask::ask(&format!(
@@ -84,6 +119,7 @@ impl Write for String {
                 path
             ))
         {
+            // writes the file and returns
             openfile::write_file(path, text).unwrap_e("Error writing your file");
             return ();
         }
