@@ -1,3 +1,7 @@
+/*
+Shows the error that has happend in the file and then closes the app
+*/
+
 use crate::common_traits::*;
 use crate::ui_ext::FormatNote;
 #[allow(unused_imports)]

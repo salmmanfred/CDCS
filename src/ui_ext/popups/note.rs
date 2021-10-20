@@ -1,3 +1,6 @@
+/*
+shows a simple text note
+*/
 #[allow(unused_imports)]
 use crate::common_traits::*;
 use crate::ui_ext::FormatNote;

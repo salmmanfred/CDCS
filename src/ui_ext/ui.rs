@@ -1,3 +1,9 @@
+/*
+The function of this file is to make the main ui that is used in the app
+and it also combines the map into it
+
+*/
+
 use crate::common_traits::*;
 use crate::ui_ext::popups::{ask, err, note};
 use fltk::{

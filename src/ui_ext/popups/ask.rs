@@ -1,3 +1,7 @@
+/*
+This creates a window that will have a simple text that wants a yes or no input
+*/
+
 #[allow(unused_imports)]
 use crate::common_traits::*;
 #[allow(unused_imports)]
@@ -21,13 +25,15 @@ enum Message {
 }
 
 pub fn ask(str: &str) -> bool {
+
+    // create the window
     let (mut wind, mut b1, mut b2) = ask_pop(str);
     let (s, r) = app::channel::<Message>();
     b1.emit(s.clone(), Message::Yes);
     b2.emit(s, Message::No);
 
     wind.show();
-
+    // getting the window inputs and returning them
     while wind.shown() {
         //println!("shit {:#?}",r.recv());
         app::wait();

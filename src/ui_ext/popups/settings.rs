@@ -1,3 +1,7 @@
+/*
+settings popup where you can change the settings
+*/
+
 #[allow(unused_imports)]
 use crate::common_traits::*;
 #[allow(unused_imports)]
@@ -41,6 +45,7 @@ const BUTTON_WID: i32 = 100;
 const BUTTON_HI: i32 = 40;
 
 fn settings_pop(st: &mut Settings) {
+    // creates the window after getting the settings &mut 
     let app = app::App::default().with_scheme(app::Scheme::Gtk);
     let mut wind = Window::default()
         .with_size(WIND_WID, WIND_HI)
@@ -93,10 +98,13 @@ fn settings_pop(st: &mut Settings) {
         app::wait();
         if let Some(msg) = r.recv() {
             match msg {
+                // when pressing save the settings file will write itself to a file
                 Message::Save => {
                     st.save();
                     wind.hide();
                 }
+                // this will change the warn prefrence for the program if its turned off it will simply
+                // never use the ask.rs(ui_ext/popups/ask.rs) window
                 Message::ChangeWarn => {
                     // wind.hide();
                     if st.warn {
@@ -107,6 +115,7 @@ fn settings_pop(st: &mut Settings) {
                         st.warn = true;
                     }
                 }
+                // change if the program should be in debug or not
                 Message::ChangeDebug => {
                     // wind.hide();
                     if st.debug {
@@ -117,9 +126,13 @@ fn settings_pop(st: &mut Settings) {
                         st.debug = true;
                     }
                 }
+                // forces a reload of the program ui
                 Message::Reload => {
+                    // if the user wants a warn it will ask otherwise it will not
                     if !st.warn || ask::ask("Are you sure?") {
                         app.quit();
+                        // it will start the new app in a box 
+                        // so you can start more without stack issues
                         Box::new(ui::run());
                     }
                 }

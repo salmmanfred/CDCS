@@ -1,3 +1,8 @@
+/*
+Function of this file is to add some simple macros and also add all the ui stuff.
+
+*/
+
 mod file;
 pub mod popups;
 pub mod ui;

@@ -1,3 +1,8 @@
+/*
+this popup get the name for the province if in debug mode
+and if it is not in debug mode it will say do you want this province for the mod
+*/
+
 #[allow(unused_imports)]
 use crate::common_traits::*;
 use crate::ui_ext::FormatNote;
