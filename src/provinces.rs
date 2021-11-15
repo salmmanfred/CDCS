@@ -24,6 +24,9 @@ pub struct prov {
 }
 impl prov {
     pub fn new() -> Self {
+        /*
+        checks if the map.json file exists otherwise it makes a new obj thats empty 
+        */
         if Path::new(SAVE_FILE).exists() {
             let x: Self = serde_json::from_str(&openfile::read_file(SAVE_FILE)).unwrap_e("err");
             return x;
@@ -54,10 +57,12 @@ impl prov {
         }
     }
     pub fn save(&mut self) {
+        // saves the file
         openfile::write_file(SAVE_FILE, &serde_json::to_string(&self).unwrap_e("err"))
             .unwrap_e("err");
     }
     pub fn exists(&self, colour: u32) -> bool {
+        // checks if the province colour exists and returns a bool
         match self.provinces.get(&colour) {
             Some(_) => true, //return (),
             _ => false,
